@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Acuity Vision Chart</title>
+<meta name="theme-color" content="#222222">
+<link rel="icon" href="icon.png">
+<link rel="stylesheet" href="style.css">
+<link rel="manifest" href="manifest.json">
+
+</head>
+
+
+<body>
+
+
+<!-- =====================================================
+                    MAIN MENU
+===================================================== -->
+
+<div id="menu">
+
+<div id="homeUiModern" class="home-layout home-layout-modern">
+
+<header class="home-header">
+    <div>
+        <div class="home-kicker">Screening Workspace</div>
+        <div class="home-title">Acuity Vision Chart</div>
+    </div>
+    <button type="button" class="home-settings-btn" onclick="openSettings()">
+        <span>⚙</span>
+        <span>Settings</span>
+    </button>
+</header>
+
+<main class="home-main">
+    <section class="home-hero">
+        <div class="hero-copy">
+            <div class="hero-label">Clinical chart selector</div>
+            <h1>Choose a vision test and start screening.</h1>
+        </div>
+        <div class="hero-actions">
+            <button class="hero-btn primary" onclick="openTest('landolt')">
+                <span>C</span>
+                <span>Landolt C</span>
+            </button>
+            <button class="hero-btn" onclick="openTest('snellen')">
+                <span>E</span>
+                <span>Snellen</span>
+            </button>
+        </div>
+    </section>
+
+    <section class="menu-section">
+        <div class="section-title">Acuity Charts</div>
+        <div class="menu-grid">
+            <button class="menu-btn featured" onclick="openTest('landolt')">
+                <div class="menu-icon">C</div>
+                <div class="menu-name">LANDOLT C</div>
+            </button>
+
+            <button class="menu-btn featured" onclick="openTest('tumbling')">
+                <div class="menu-icon">E</div>
+                <div class="menu-name">TUMBLING E</div>
+            </button>
+
+            <button class="menu-btn" onclick="openTest('alphabets')">
+                <div class="menu-icon">ABC</div>
+                <div class="menu-name">ALPHABETS</div>
+            </button>
+
+            <button class="menu-btn" onclick="openTest('numerics')">
+                <div class="menu-icon">123</div>
+                <div class="menu-name">NUMERICS</div>
+            </button>
+
+            <button class="menu-btn" onclick="openTest('snellen')">
+                <div class="menu-icon">E</div>
+                <div class="menu-name">SNELLEN</div>
+            </button>
+
+            <button class="menu-btn" onclick="openTest('logmar')">
+                <div class="menu-icon">E</div>
+                <div class="menu-name">LOGMAR</div>
+            </button>
+        </div>
+    </section>
+
+    <section class="menu-section">
+        <div class="section-title">Language Charts</div>
+        <div id="modernLanguageCards" class="menu-grid compact">
+            <button class="menu-btn" onclick="openTest('punjabi')">
+                <div class="menu-icon">ਪ</div>
+                <div class="menu-name">PUNJABI</div>
+            </button>
+
+            <button class="menu-btn" onclick="openTest('urdu')">
+                <div class="menu-icon">اردو</div>
+                <div class="menu-name">URDU</div>
+            </button>
+
+            <button class="menu-btn" onclick="openTest('hindi')">
+                <div class="menu-icon">अ</div>
+                <div class="menu-name">HINDI</div>
+            </button>
+        </div>
+    </section>
+
+    <section class="menu-section">
+        <div class="section-title">Special Tests</div>
+        <div class="menu-grid compact">
+            <button class="menu-btn" onclick="openTest('pediatric')">
+                <div class="menu-icon">☀</div>
+                <div class="menu-name">PEDIATRIC</div>
+            </button>
+
+            <button class="menu-btn" onclick="openTest('dots')">
+                <div class="menu-icon">••</div>
+                <div class="menu-name">DOTS</div>
+            </button>
+
+            <button class="menu-btn" onclick="openTest('redgreen')">
+                <div class="menu-icon">R/G</div>
+                <div class="menu-name">RED / GREEN</div>
+            </button>
+
+            <button class="menu-btn" onclick="openTest('peripheral')">
+                <div class="menu-icon">9</div>
+                <div class="menu-name">PERIPHERAL</div>
+            </button>
+
+            <button class="menu-btn" onclick="openTest('contrast')">
+                <div class="menu-icon">•••</div>
+                <div class="menu-name">CONTRAST</div>
+            </button>
+
+            <button class="menu-btn" onclick="openTest('misc')">
+                <div class="menu-icon">○</div>
+                <div class="menu-name">MISC</div>
+            </button>
+
+            <button class="menu-btn" onclick="openTest('ishihara')">
+                <div class="menu-icon">●</div>
+                <div class="menu-name">ISHIHARA</div>
+            </button>
+
+            <button class="menu-btn" onclick="openTest('astig')">
+                <div class="menu-icon">✳</div>
+                <div class="menu-name">ASTIG FAN</div>
+            </button>
+
+            <button class="menu-btn" onclick="openTest('educational')">
+                <div class="menu-icon">◎</div>
+                <div class="menu-name">EDUCATIONAL</div>
+            </button>
+        </div>
+    </section>
+</main>
+
+<div class="disclaimer">
+    For vision screening purposes only — not a substitute for a comprehensive professional eye examination.
+</div>
+
+</div>
+
+<div id="homeUiDevice" class="home-layout home-layout-device" aria-hidden="true">
+
+    <header class="device-home-header">
+        <div class="brand">
+            <div class="brand-eye" aria-hidden="true">
+                <svg viewBox="0 0 64 40" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                        d="M4 20 C13 6, 24 2, 32 2 C40 2, 51 6, 60 20 C51 34, 40 38, 32 38 C24 38, 13 34, 4 20Z"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="4"
+                    />
+                    <circle cx="32" cy="20" r="8" fill="currentColor" />
+                </svg>
+            </div>
+
+            <div class="brand-title">ACUITY VISION CHART</div>
+        </div>
+
+        <button
+            type="button"
+            class="header-settings"
+            onclick="openSettings()"
+            aria-label="Settings"
+        >
+            <span class="settings-gear">⚙</span>
+        </button>
+    </header>
+
+    <main class="vision-grid">
+        <button class="vision-card" onclick="openTest('landolt')">
+            <div class="card-icon landolt-icon">C</div>
+            <div class="card-name">LANDOLT C</div>
+        </button>
+
+        <button class="vision-card" onclick="openTest('tumbling')">
+            <div class="card-icon tumbling-icon">E</div>
+            <div class="card-name">TUMBLING E</div>
+        </button>
+
+        <button class="vision-card" onclick="openTest('alphabets')">
+            <div class="card-icon alphabet-icon">
+                <span>B</span>
+                <span>A&nbsp;&nbsp;C</span>
+            </div>
+            <div class="card-name">ALPHABETS</div>
+        </button>
+
+        <button class="vision-card" onclick="openTest('numerics')">
+            <div class="card-icon numeric-icon">
+                <span>1 2 3</span>
+                <span>6 7 8</span>
+            </div>
+            <div class="card-name">NUMERICS</div>
+        </button>
+
+        <div id="deviceLanguageCards" class="language-card-slots">
+            <button class="vision-card" onclick="openTest('hindi')">
+                <div class="card-icon dynamic-language-icon">अ</div>
+                <div class="card-name">HINDI</div>
+            </button>
+            <button class="vision-card" onclick="openTest('punjabi')">
+                <div class="card-icon dynamic-language-icon">ਅ</div>
+                <div class="card-name">PUNJABI</div>
+            </button>
+            <button class="vision-card" onclick="openTest('urdu')">
+                <div class="card-icon dynamic-language-icon">ا</div>
+                <div class="card-name">URDU</div>
+            </button>
+        </div>
+
+        <button class="vision-card" onclick="openTest('pediatric')">
+            <div class="card-icon pediatric-icon">
+                <span class="pediatric-sun">☀</span>
+            </div>
+            <div class="card-name">PEDIATRIC</div>
+        </button>
+
+        <button class="vision-card" onclick="openTest('snellen')">
+            <div class="card-icon snellen-icon">
+                <div class="snellen-box">
+                    <span>E</span>
+                    <span>F</span>
+                    <span>P</span>
+                    <span>T</span>
+                    <span>O</span>
+                    <span>Z</span>
+                </div>
+            </div>
+            <div class="card-name">SNELLEN</div>
+        </button>
+
+        <button class="vision-card" onclick="openTest('logmar')">
+            <div class="card-icon logmar-icon">
+                <span>H V Z O S</span>
+                <span>N D R O V</span>
+                <span>V C R H N</span>
+                <span>D E Z O P</span>
+            </div>
+            <div class="card-name">LOGMAR</div>
+        </button>
+
+        <button class="vision-card" onclick="openTest('dots')">
+            <div class="card-icon dots-icon">
+                <span>● ● ●</span>
+                <span>● ● ●</span>
+                <span>● ● ●</span>
+            </div>
+            <div class="card-name">DOTS</div>
+        </button>
+
+        <button class="vision-card" onclick="openTest('redgreen')">
+            <div class="card-icon redgreen-icon">R<span>/</span>G</div>
+            <div class="card-name">RED GREEN</div>
+        </button>
+
+        <button class="vision-card" onclick="openTest('contrast')">
+            <div class="card-icon contrast-icon">
+                <span>••••••</span>
+                <span>••••••</span>
+                <span>••••••</span>
+                <span>••••••</span>
+            </div>
+            <div class="card-name">CONTRAST</div>
+        </button>
+
+        <button class="vision-card" onclick="openTest('misc')">
+            <div class="card-icon misc-icon">
+                <span>○</span>
+                <span>●</span>
+                <span>○</span>
+            </div>
+            <div class="card-name">MISC</div>
+        </button>
+
+        <button class="vision-card" onclick="openTest('ishihara')">
+            <div class="card-icon ishihara-icon">●</div>
+            <div class="card-name">ISHIHARA</div>
+        </button>
+
+        <button class="vision-card" onclick="openTest('astig')">
+            <div class="card-icon astig-icon">
+                <span class="astig-rays"></span>
+            </div>
+            <div class="card-name">ASTIG FAN</div>
+        </button>
+
+        <button class="vision-card" onclick="openTest('educational')">
+            <div class="card-icon educational-icon">◎</div>
+            <div class="card-name">EDUCATIONAL</div>
+        </button>
+
+        <button class="vision-card contact-card" type="button" onclick="openSettings()">
+            <div class="card-icon contact-icon">☎</div>
+            <div class="card-name">SETTINGS</div>
+        </button>
+    </main>
+
+</div>
+
+</div>
+<!-- SETTINGS PANEL -->
+
+<div id="settingsPanel">
+
+    <div class="settings-box">
+
+        <div class="settings-title">
+            SETTINGS
+        </div>
+
+        <div class="settings-grid">
+            <button class="settings-back" onclick="closeSettings()">
+    BACK
+</button>
+
+
+            <button class="setting-card" onclick="openUiSettings()">
+                <div class="setting-icon">◀▶</div>
+                <div class="setting-card-name">UI MODE</div>
+            </button>
+
+           <button class="setting-card" onclick="openDistanceSettings()">
+    <div class="setting-icon">↔</div>
+    <div class="setting-card-name">DISTANCE</div>
+</button>
+
+    <button class="setting-card" onclick="openCalibrationSettings()">
+    <div class="setting-icon">▣</div>
+    <div class="setting-card-name">CALIBRATE</div>
+</button>
+            <button class="setting-card" onclick="openLanguageSettings()">
+    <div class="setting-icon">A文</div>
+    <div class="setting-card-name">LANGUAGE</div>
+</button>
+
+            <button class="setting-card" onclick="openThemeSettings()">
+                <div class="setting-icon">◐</div>
+                <div class="setting-card-name">THEME</div>
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+<!-- UI SETTINGS -->
+
+<div id="uiScreen">
+
+    <div class="language-header">
+        <span>UI MODE</span>
+    </div>
+
+    <div class="theme-content">
+        <div id="uiList" class="theme-grid"></div>
+    </div>
+
+    <button class="language-done" onclick="closeUiSettings()">
+        DONE
+    </button>
+
+</div>
+<!-- THEME SETTINGS -->
+
+<div id="themeScreen">
+
+    <div class="language-header">
+        <span>THEME</span>
+    </div>
+
+    <div class="theme-content">
+        <div id="themeList" class="theme-grid"></div>
+    </div>
+
+    <button class="language-done" onclick="closeThemeSettings()">
+        DONE
+    </button>
+
+</div>
+<!-- DISTANCE SETTINGS -->
+
+<div id="distanceScreen">
+
+
+
+
+    <div class="language-header">
+        <span>DISTANCE</span>
+    </div>
+
+    <div class="distance-options">
+
+        <button onclick="selectDistance('5 Feet (1.5 Mtrs)')">
+            5 Feet (1.5 Mtrs)
+        </button>
+
+        <button onclick="selectDistance('6 Feet (2.0 Mtrs)')">
+            6 Feet (2.0 Mtrs)
+        </button>
+
+        <button onclick="selectDistance('8 Feet (2.5 Mtrs)')">
+            8 Feet (2.5 Mtrs)
+        </button>
+
+        <button onclick="selectDistance('10 Feet (3.0 Mtrs)')">
+            10 Feet (3.0 Mtrs)
+        </button>
+
+        <button onclick="selectDistance('12 Feet (3.5 Mtrs)')">
+            12 Feet (3.5 Mtrs)
+        </button>
+
+        <button onclick="selectDistance('15 Feet (4.5 Mtrs)')">
+            15 Feet (4.5 Mtrs)
+        </button>
+
+        <button onclick="selectDistance('20 Feet (6.0 Mtrs)')">
+            20 Feet (6.0 Mtrs)
+        </button>
+
+    </div>
+
+    <button class="language-done" onclick="closeDistanceSettings()">
+        DONE
+    </button>
+
+
+</div>
+
+
+<!-- CALIBRATION SCREEN -->
+
+<div id="calibrationScreen">
+    <div class="calibration-content">
+        <section class="calibration-control-panel" aria-label="Calibration controls">
+            <div class="calibration-size-control">
+                <button type="button" class="calibration-arrow vertical" onclick="changeCalibration(1)" aria-label="Increase calibration">⌃</button>
+                <output id="calibrationValue" class="calibration-readout">0.0</output>
+                <button type="button" class="calibration-arrow vertical" onclick="changeCalibration(-1)" aria-label="Decrease calibration">⌄</button>
+            </div>
+
+            <div class="calibration-level-control">
+                <button type="button" class="calibration-arrow" onclick="changeCalibrationLevel(-1)" aria-label="Previous acuity level">‹</button>
+                <output id="calibrationLevel" class="calibration-readout">6/60</output>
+                <button type="button" class="calibration-arrow" onclick="changeCalibrationLevel(1)" aria-label="Next acuity level">›</button>
+            </div>
+
+            <p class="calibration-info">Adjust the size until the Landolt C matches your reference measurement.</p>
+
+            <button type="button" class="calibration-save" onclick="saveCalibration()">SAVE &amp; DONE</button>
+        </section>
+
+        <section class="calibration-preview" aria-label="Calibrated Landolt C preview">
+            <div id="calibrationOptotype" class="landolt-c"></div>
+        </section>
+    </div>
+</div>
+
+<!-- LANGUAGE SETTINGS -->
+
+<div id="languageScreen">
+
+    <div class="language-header">
+        <span>LANGUAGE</span>
+        <span id="languageCount">0 / 3 SELECTED</span>
+    </div>
+
+    <div class="language-content">
+
+        <div class="language-group">
+            <div class="language-group-title">INDIAN LANGUAGES</div>
+            <div id="indianLanguages" class="language-list"></div>
+        </div>
+
+        <div class="language-group">
+            <div class="language-group-title">INTERNATIONAL LANGUAGES</div>
+            <div id="internationalLanguages" class="language-list"></div>
+        </div>
+
+        <div class="language-group">
+            <div class="language-group-title">OTHER LANGUAGES</div>
+            <div id="otherLanguages" class="language-list"></div>
+        </div>
+
+    </div>
+
+    <button class="language-done" onclick="closeLanguageSettings()">
+        DONE
+    </button>
+
+</div>
+
+
+
+<!-- =====================================================
+                    TEST SCREEN
+===================================================== -->
+
+<div id="testScreen">
+
+
+<div class="test-header">
+
+    <button
+        type="button"
+        class="header-btn"
+        onclick="closeTest()">
+        MENU
+    </button>
+
+    <span id="testTitle">
+        TEST
+    </span>
+
+    <span id="eyeTitle">
+        RIGHT EYE
+    </span>
+
+</div>
+
+
+<div class="eye-buttons">
+
+    <button
+        class="eye-btn active"
+        onclick="setEye('RIGHT EYE')">
+
+        RIGHT EYE
+
+    </button>
+
+
+    <button
+        class="eye-btn"
+        onclick="setEye('LEFT EYE')">
+
+        LEFT EYE
+
+    </button>
+
+</div>
+
+
+<div id="testArea" class="test-area">
+    <div class="contrast-chart">
+        <!-- Row 1 -->
+        <div class="contrast-row">
+            <div class="contrast-label left">&lt; 100%</div>
+            <div class="contrast-letters" style="color: rgba(0, 0, 0, 0.85);">
+                <span>K</span><span>N</span><span>R</span><span>S</span><span>K</span>
+            </div>
+            <div class="contrast-label right">&gt;</div>
+        </div>
+
+        <!-- Row 2 -->
+        <div class="contrast-row">
+            <div class="contrast-label left">&lt; 95%</div>
+            <div class="contrast-letters" style="color: rgba(0, 0, 0, 0.65);">
+                <span>K</span><span>D</span><span>Z</span><span>N</span><span>H</span>
+            </div>
+            <div class="contrast-label right">&gt;</div>
+        </div>
+
+        <!-- Row 3 -->
+        <div class="contrast-row">
+            <div class="contrast-label left">&lt; 90%</div>
+            <div class="contrast-letters" style="color: rgba(0, 0, 0, 0.45);">
+                <span>R</span><span>D</span><span>S</span><span>K</span><span>D</span>
+            </div>
+            <div class="contrast-label right">&gt;</div>
+        </div>
+
+        <!-- Row 4 -->
+        <div class="contrast-row">
+            <div class="contrast-label left">&lt; 85%</div>
+            <div class="contrast-letters" style="color: rgba(0, 0, 0, 0.30);">
+                <span>H</span><span>H</span><span>H</span><span>R</span><span>Z</span>
+            </div>
+            <div class="contrast-label right">&gt;</div>
+        </div>
+
+        <!-- Row 5 -->
+        <div class="contrast-row">
+            <div class="contrast-label left">&lt; 80%</div>
+            <div class="contrast-letters" style="color: rgba(0, 0, 0, 0.15);">
+                <span>S</span><span>Z</span><span>K</span><span>D</span><span>H</span>
+            </div>
+            <div class="contrast-label right">&gt;</div>
+        </div>
+    </div>
+</div>
+
+
+<div class="test-controls">
+    <button
+        type="button"
+        class="control-btn"
+        onclick="previousFeature()">
+        TEST -
+    </button>
+
+    <button
+        type="button"
+        class="control-btn"
+        onclick="previousLevel()">
+        SIZE -
+    </button>
+
+    <span class="level-indicator" id="levelIndicator">
+        1 / 8
+    </span>
+
+    <button
+        type="button"
+        class="control-btn"
+        onclick="nextLevel()">
+        SIZE +
+    </button>
+
+    <button
+        type="button"
+        class="control-btn"
+        onclick="nextFeature()">
+        TEST +
+    </button>
+</div>
+
+
+</div>
+	<script src="js/core.js"></script>
+	<script src="js/settings.js"></script>
+	<script src="js/features/landolt.js"></script>
+	<script src="js/features/tumbling.js"></script>
+	<script src="js/features/alphabets.js"></script>
+	<script src="js/features/numerics.js"></script>
+	<script src="js/features/languages.js"></script>
+	<script src="js/features/dots.js"></script>
+	<script src="js/features/redgreen.js"></script>
+	<script src="js/features/pediatric.js"></script>
+	<script src="js/features/snellen.js"></script>
+	<script src="js/features/logmar.js"></script>
+	<script src="js/features/peripheral.js"></script>
+	<script src="js/features/contrast.js"></script>
+	<script src="js/features/misc.js"></script>
+	<script src="js/features/ishihara.js"></script>
+	<script src="js/features/astig.js"></script>
+	<script src="js/features/educational.js"></script>
+    <script>
+if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("./service-worker.js", { updateViaCache: "none" })
+        .then(() => console.log("Service Worker registered"))
+        .catch(error => console.error("Service Worker error:", error));
+}
+</script>
+
+
+</body>
+</html>
