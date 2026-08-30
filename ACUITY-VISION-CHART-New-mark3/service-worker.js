@@ -1,12 +1,15 @@
-const CACHE_NAME = 'vision-chart-v6';
+const CACHE_NAME = 'vision-chart-v7';
+
 const ASSETS = [
   './',
   './index.html',
   './style.css',
   './manifest.json',
   './icon.png',
+
   './js/core.js',
   './js/settings.js',
+
   './js/features/landolt.js',
   './js/features/tumbling.js',
   './js/features/alphabets.js',
@@ -23,6 +26,7 @@ const ASSETS = [
   './js/features/ishihara.js',
   './js/features/astig.js',
   './js/features/educational.js',
+
   './icons/Pasted image.png',
   './icons/Pasted image (2).png',
   './icons/Pasted image (3).png',
@@ -34,42 +38,135 @@ const ASSETS = [
   './icons/Pasted image (9).png'
 ];
 
-// Install and cache assets
-self.addEventListener('install', (event) => {
+
+// ================= INSTALL =================
+
+self.addEventListener('install', event => {
+
   event.waitUntil(
+
     caches.open(CACHE_NAME)
-      .then((cache) => cache.addAll(ASSETS))
+      .then(cache => cache.addAll(ASSETS))
       .then(() => self.skipWaiting())
+
   );
+
 });
 
-// Remove old app caches after an update.
-self.addEventListener('activate', (event) => {
+
+// ================= ACTIVATE =================
+
+self.addEventListener('activate', event => {
+
   event.waitUntil(
+
     caches.keys()
-      .then((cacheNames) => Promise.all(
-        cacheNames
-          .filter((cacheName) => cacheName !== CACHE_NAME)
-          .map((cacheName) => caches.delete(cacheName))
-      ))
+      .then(cacheNames => {
+
+        return Promise.all(
+
+          cacheNames
+            .filter(name => name !== CACHE_NAME)
+            .map(name => caches.delete(name))
+
+        );
+
+      })
       .then(() => self.clients.claim())
+
   );
+
 });
 
-// Always fetch a fresh copy while online, matching a hard refresh. The cache
-// remains only as an offline fallback.
-self.addEventListener('fetch', (event) => {
-  if (event.request.method !== 'GET') return;
 
-  event.respondWith(
-    fetch(event.request, { cache: 'no-store' })
-      .then((response) => {
-        if (response.ok && new URL(event.request.url).origin === self.location.origin) {
-          const copy = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
-        }
-        return response;
+// ================= FETCH =================
+
+self.addEventListener('fetch', event => {
+
+  if (event.request.method !== 'GET') {
+    return;
+  }
+
+  const url = new URL(event.request.url);
+
+  // Only handle this website
+  if (url.origin !== self.location.origin) {
+    return;
+  }
+
+  /*
+   * JavaScript / CSS / HTML:
+   * ALWAYS get the newest version from the server.
+   */
+  const isCodeFile =
+    url.pathname.endsWith('.js') ||
+    url.pathname.endsWith('.css') ||
+    url.pathname.endsWith('.html');
+
+  if (isCodeFile) {
+
+    event.respondWith(
+
+      fetch(event.request, {
+        cache: 'no-store'
       })
-      .catch(() => caches.match(event.request))
+        .then(response => {
+
+          if (response.ok) {
+
+            const copy = response.clone();
+
+            caches.open(CACHE_NAME)
+              .then(cache => {
+                cache.put(event.request, copy);
+              });
+
+          }
+
+          return response;
+
+        })
+        .catch(() => {
+
+          return caches.match(event.request);
+
+        })
+
+    );
+
+    return;
+  }
+
+
+  /*
+   * Images / other assets:
+   * Network first, cache fallback.
+   */
+  event.respondWith(
+
+    fetch(event.request)
+      .then(response => {
+
+        if (response.ok) {
+
+          const copy = response.clone();
+
+          caches.open(CACHE_NAME)
+            .then(cache => {
+              cache.put(event.request, copy);
+            });
+
+        }
+
+        return response;
+
+      })
+      .catch(() => {
+
+        return caches.match(event.request);
+
+      })
+
   );
+
 });

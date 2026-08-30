@@ -46,6 +46,7 @@ FEATURES["alphabets"] = {
                         font-size:${size}px;
                         font-weight:bold;
                         line-height:1;
+                        color:#000000;
                     ">
                         ${letter}
                     </span>

@@ -13,10 +13,11 @@ let selectedLanguages = [
 
 const DEFAULT_SELECTED_LANGUAGES = ["hindi", "punjabi", "urdu"];
 
-const BASE_CALIBRATION_PIXELS = 377.95;
+const DEFAULT_PANEL_DPI = 127;
 let calibrationOffset = 0;
 let calibrationPreviewLevel = 0;
 let currentDistanceMeters = 3.0;
+let panelDpi = DEFAULT_PANEL_DPI;
 let selectedDistanceLabel = "10 Feet (3.0 Mtrs)";
 // Device Grid is the default layout for new installs. A user's later choice
 // is still preserved in local storage.
@@ -567,12 +568,28 @@ function calculateOptotypeSize(levelLabel) {
     const physicalSizeMm =
         2 * distanceMm * Math.tan(angleRadians / 2);
 
-    // Screen pixels per mm
-    const calibratedPixels =
-        BASE_CALIBRATION_PIXELS * (1 + calibrationOffset / 100);
-    const pixelsPerMm = calibratedPixels / 100;
+    // Convert the required physical size to panel pixels. 25.4 mm = 1 inch.
+    // The optional offset remains available for a ruler-based fine adjustment.
+    const pixelsPerMm = (panelDpi / 25.4) * (1 + calibrationOffset / 100);
 
     return physicalSizeMm * pixelsPerMm;
+}
+
+// The standard Landolt C used by the calibration card: 1/5 stroke and 1/5 gap.
+function createLandoltCSvg(pixelSize, rotation = 0) {
+    const size = Math.max(1, Number(pixelSize));
+    const svgSize = size.toFixed(3);
+
+    return `
+        <svg class="landolt-c-svg" width="${svgSize}" height="${svgSize}" viewBox="0 0 100 100" role="img" aria-label="Landolt C">
+            <g transform="rotate(${rotation} 50 50)">
+                <circle cx="50" cy="50" r="40" fill="none" stroke="#000" stroke-width="20" shape-rendering="geometricPrecision"></circle>
+                <!-- The cutout overlaps the inner white circle so no black sliver
+                     remains at either end of the opening. The visible gap remains
+                     exactly 20 viewBox units high (one-fifth of the optotype). -->
+                <rect x="70" y="40" width="30" height="20" fill="#fff"></rect>
+            </g>
+        </svg>`;
 }
 
 // Kept as an alias for any future Landolt-specific callers.
@@ -580,10 +597,69 @@ function calculateLandoltSize(levelLabel) {
     return calculateOptotypeSize(levelLabel);
 }
 
+function imperialAcuityLabel(metricLabel) {
+    const denominator = parseFloat(String(metricLabel).split("/")[1]);
+    const imperialDenominator = (denominator * 20) / 6;
+
+    if (!Number.isFinite(imperialDenominator)) return "";
+
+    const displayDenominator = Number.isInteger(imperialDenominator)
+        ? imperialDenominator
+        : imperialDenominator.toFixed(1).replace(/\.0$/, "");
+
+    return `20/${displayDenominator}`;
+}
+
+function addAcuitySideLabels(area, metricLabel) {
+    if (!area || !metricLabel) return;
+
+    const metric = document.createElement("div");
+    const imperial = document.createElement("div");
+
+    metric.className = "acuity-side-label acuity-side-label-left";
+    imperial.className = "acuity-side-label acuity-side-label-right";
+    metric.textContent = metricLabel;
+    imperial.textContent = imperialAcuityLabel(metricLabel);
+
+    area.classList.add("acuity-test-area");
+    area.append(metric, imperial);
+}
+
 function openCalibrationSettings() {
     showScreen("calibrationScreen");
 
+    syncCalibrationInputs();
     updateCalibrationPreview();
+}
+
+function syncCalibrationInputs() {
+    const distanceInput = document.getElementById("calibrationDistance");
+    const dpiInput = document.getElementById("calibrationDpi");
+
+    if (distanceInput) distanceInput.value = currentDistanceMeters;
+    if (dpiInput) dpiInput.value = panelDpi;
+}
+
+function updateCalibrationPhysicalSettings() {
+    const distanceInput = document.getElementById("calibrationDistance");
+    const dpiInput = document.getElementById("calibrationDpi");
+    const distance = Number(distanceInput?.value);
+    const dpi = Number(dpiInput?.value);
+
+    if (Number.isFinite(distance) && distance > 0) {
+        currentDistanceMeters = distance;
+        selectedDistanceLabel = `${distance.toFixed(2)} Mtrs`;
+        localStorage.setItem("selectedDistance", selectedDistanceLabel);
+        localStorage.setItem("calibrationDistanceMeters", currentDistanceMeters);
+    }
+
+    if (Number.isFinite(dpi) && dpi > 0) {
+        panelDpi = dpi;
+        localStorage.setItem("panelDpi", panelDpi);
+    }
+
+    updateCalibrationPreview();
+    if (currentTest) renderFeature();
 }
 
 function updateCalibrationPreview() {
@@ -601,9 +677,7 @@ function updateCalibrationPreview() {
     const size = calculateOptotypeSize(levelLabel);
 
     if (preview) {
-        preview.style.width = `${size}px`;
-        preview.style.height = `${size}px`;
-        preview.style.borderWidth = `${Math.max(2, Math.round(size / 5))}px`;
+        preview.innerHTML = createLandoltCSvg(size);
     }
 
     if (value) value.textContent = calibrationOffset.toFixed(1);
@@ -640,6 +714,8 @@ function saveCalibration() {
         "calibrationOffset",
         calibrationOffset
     );
+    localStorage.setItem("panelDpi", panelDpi);
+    localStorage.setItem("calibrationDistanceMeters", currentDistanceMeters);
 
     // Apply a newly saved calibration immediately if a chart is open.
     if (currentTest) {
@@ -663,6 +739,21 @@ function loadSavedSettings() {
 
     if (savedDistance) {
         updateDistance(savedDistance);
+    }
+
+    const savedCalibrationDistance = parseFloat(
+        localStorage.getItem("calibrationDistanceMeters")
+    );
+
+    if (Number.isFinite(savedCalibrationDistance) && savedCalibrationDistance > 0) {
+        currentDistanceMeters = savedCalibrationDistance;
+        selectedDistanceLabel = `${savedCalibrationDistance.toFixed(2)} Mtrs`;
+    }
+
+    const savedPanelDpi = parseFloat(localStorage.getItem("panelDpi"));
+
+    if (Number.isFinite(savedPanelDpi) && savedPanelDpi > 0) {
+        panelDpi = savedPanelDpi;
     }
 
     const savedTheme = localStorage.getItem("selectedThemeId");
@@ -702,3 +793,93 @@ function loadSavedSettings() {
 
     renderLanguageMenuCards();
 }
+
+/* ================= CALIBRATION KEYBOARD ================= */
+
+document.addEventListener("keydown", function (event) {
+
+    const screen = document.getElementById("calibrationScreen");
+
+    if (!screen) return;
+
+    /*
+     * Only work while calibration screen is active.
+     */
+    const isVisible =
+        window.getComputedStyle(screen).display !== "none";
+
+    if (!isVisible) return;
+
+
+    /* UP = increase C size */
+    if (event.key === "ArrowUp") {
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        changeCalibration(1);
+
+        return;
+    }
+
+
+    /* DOWN = decrease C size */
+    if (event.key === "ArrowDown") {
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        changeCalibration(-1);
+
+        return;
+    }
+
+
+    /* LEFT = previous calibration level */
+    if (event.key === "ArrowLeft") {
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        changeCalibrationLevel(-1);
+
+        return;
+    }
+
+
+    /* RIGHT = next calibration level */
+    if (event.key === "ArrowRight") {
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        changeCalibrationLevel(1);
+
+        return;
+    }
+
+
+    /* ENTER = SAVE & DONE */
+    if (event.key === "Enter") {
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        saveCalibration();
+
+        return;
+    }
+
+
+    /* ESC = close calibration */
+    if (event.key === "Escape") {
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        showScreen("settingsPanel");
+
+        return;
+    }
+
+});

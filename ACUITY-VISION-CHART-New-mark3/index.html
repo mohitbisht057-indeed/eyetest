@@ -158,9 +158,6 @@
     </section>
 </main>
 
-<div class="disclaimer">
-    For vision screening purposes only — not a substitute for a comprehensive professional eye examination.
-</div>
 
 </div>
 
@@ -460,6 +457,15 @@
 <div id="calibrationScreen">
     <div class="calibration-content">
         <section class="calibration-control-panel" aria-label="Calibration controls">
+            <div class="calibration-physical-settings">
+                <label>Viewing distance (m)
+                    <input id="calibrationDistance" type="number" min="0.1" step="0.01" value="3" inputmode="decimal" onchange="updateCalibrationPhysicalSettings()">
+                </label>
+                <label>Panel DPI
+                    <input id="calibrationDpi" type="number" min="1" step="0.1" value="127" inputmode="decimal" onchange="updateCalibrationPhysicalSettings()">
+                </label>
+                <p>Default: 3 m at 127 DPI. Use a ruler to fine-tune the displayed size if required.</p>
+            </div>
             <div class="calibration-size-control">
                 <button type="button" class="calibration-arrow vertical" onclick="changeCalibration(1)" aria-label="Increase calibration">⌃</button>
                 <output id="calibrationValue" class="calibration-readout">0.0</output>
@@ -472,13 +478,13 @@
                 <button type="button" class="calibration-arrow" onclick="changeCalibrationLevel(1)" aria-label="Next acuity level">›</button>
             </div>
 
-            <p class="calibration-info">Adjust the size until the Landolt C matches your reference measurement.</p>
+          
 
             <button type="button" class="calibration-save" onclick="saveCalibration()">SAVE &amp; DONE</button>
         </section>
 
         <section class="calibration-preview" aria-label="Calibrated Landolt C preview">
-            <div id="calibrationOptotype" class="landolt-c"></div>
+            <div id="calibrationOptotype" class="landolt-c-preview"></div>
         </section>
     </div>
 </div>
@@ -535,38 +541,7 @@
         MENU
     </button>
 
-    <span id="testTitle">
-        TEST
-    </span>
-
-    <span id="eyeTitle">
-        RIGHT EYE
-    </span>
-
 </div>
-
-
-<div class="eye-buttons">
-
-    <button
-        class="eye-btn active"
-        onclick="setEye('RIGHT EYE')">
-
-        RIGHT EYE
-
-    </button>
-
-
-    <button
-        class="eye-btn"
-        onclick="setEye('LEFT EYE')">
-
-        LEFT EYE
-
-    </button>
-
-</div>
-
 
 <div id="testArea" class="test-area">
     <div class="contrast-chart">
@@ -615,41 +590,6 @@
             <div class="contrast-label right">&gt;</div>
         </div>
     </div>
-</div>
-
-
-<div class="test-controls">
-    <button
-        type="button"
-        class="control-btn"
-        onclick="previousFeature()">
-        TEST -
-    </button>
-
-    <button
-        type="button"
-        class="control-btn"
-        onclick="previousLevel()">
-        SIZE -
-    </button>
-
-    <span class="level-indicator" id="levelIndicator">
-        1 / 8
-    </span>
-
-    <button
-        type="button"
-        class="control-btn"
-        onclick="nextLevel()">
-        SIZE +
-    </button>
-
-    <button
-        type="button"
-        class="control-btn"
-        onclick="nextFeature()">
-        TEST +
-    </button>
 </div>
 
 

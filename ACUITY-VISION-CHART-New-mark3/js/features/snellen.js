@@ -1,47 +1,69 @@
-/* SNELLEN — full multi-row chart from the current app. */
+/* SNELLEN — calibrated multi-row charts */
+
 let snellenPage = 0;
 let snellenOffset = 0;
 
+const SNELLEN_PAGES = [
+    ["8", "8 1", "9 2 3", "1 6 3 7", "4 7 3 9 8", "3 8 6 1 5 9", "7 2 9 4 6 1 8", "5 8 3 7 1 9 4 6"],
+    ["6", "6 2", "3 6 5", "8 7 9 2", "0 3 8 6 1", "2 7 4 9 5 8", "4 1 7 3 9 6 2", "8 5 2 6 1 4 7 3"],
+    ["E", "E E", "E E E", "E E E E", "E E E E E", "E E E E E E", "E E E E E E E", "E E E E E E E E"],
+    ["C", "C C", "C C C", "C C C C", "C C C C C", "C C C C C C", "C C C C C C C", "C C C C C C C C"]
+];
+
 FEATURES["snellen"] = {
     render(area) {
-        const pages = [
-            ["8", "8 1", "9 2 3", "1 6 3 7", "4 7 3 9 8", "3 8 6 1 5 9", "7 2 9 4 6 1 8", "5 8 3 7 1 9 4 6"],
-            ["6", "6 2", "3 6 5", "8 7 9 2", "0 3 8 6 1", "2 7 4 9 5 8", "4 1 7 3 9 6 2", "8 5 2 6 1 4 7 3"],
-            ["E", "E E", "E E E", "E E E E", "E E E E E", "E E E E E E", "E E E E E E E", "E E E E E E E E"],
-            ["C", "C C", "C C C", "C C C C", "C C C C C", "C C C C C C", "C C C C C C C", "C C C C C C O"]
-        ];
-        const acuities = ["6/60", "6/36", "6/24", "6/18", "6/12", "6/9", "6/6", "6/4"];
-        const rowSizes = [92, 66, 51, 41, 34, 29, 24, 20];
+        const rows = SNELLEN_PAGES[snellenPage];
 
-        area.innerHTML = `<div class="snellen" style="position:relative;width:100%;padding-top:80px;box-sizing:border-box;transition:transform .15s ease;">
-            ${pages[snellenPage].map((text, index) => `<div style="position:relative;width:100%;height:${rowSizes[index] + 55}px;margin-bottom:18px;display:flex;align-items:center;justify-content:center;box-sizing:border-box;">
-                <div style="position:absolute;left:8%;font:16px Arial,sans-serif;color:#333;">${acuities[index]}</div>
-                <div style="font-family:Arial,sans-serif;font-size:${rowSizes[index]}px;font-weight:700;line-height:1;letter-spacing:${rowSizes[index] * .32}px;white-space:nowrap;text-align:center;">${text}</div>
-                <div style="position:absolute;right:8%;font:16px Arial,sans-serif;color:#777;">${acuities[index]}</div>
-            </div>`).join("")}
-        </div>`;
-        snellenOffset = 0;
+        area.innerHTML = `
+            <div id="snellenChart" class="calibrated-chart-scroll">
+                <div class="calibrated-chart-content" style="transform:translateY(${snellenOffset}px)">
+                    ${ACUITY_LEVELS.map((level, index) => {
+                        const size = calculateOptotypeSize(level.label);
+                        const symbols = rows[index].split(" ");
+                        const isLandolt = snellenPage === 3;
+                        const rowWidth = 220 + index * 135;
+                        const spacing = Math.max(18, size * 0.65);
+
+                        return `
+                            <div class="calibrated-chart-row" style="min-height:${Math.ceil(size + 42)}px">
+                                <div class="chart-acuity chart-acuity-left">${level.label}</div>
+                                <div class="chart-optotypes snellen-optotypes" style="width:min(68vw, ${rowWidth}px);gap:${spacing}px">
+                                    ${isLandolt
+                                        ? symbols.map((_, i) => createLandoltCSvg(size, [0, 90, 180, 270][i % 4])).join("")
+                                        : symbols.map(symbol => `
+                                            <span class="snellen-symbol" style="width:${Math.round(size)}px;height:${Math.round(size)}px;font-size:${Math.round(size)}px">${symbol}</span>
+                                        `).join("")}
+                                </div>
+                                <div class="chart-acuity chart-acuity-right">${imperialAcuityLabel(level.label)}</div>
+                            </div>`;
+                    }).join("")}
+                </div>
+            </div>`;
+
+        this.clampOffset();
         this.updateIndicator();
     },
 
-    next() {
-        this.scroll(300);
-    },
-
-    prev() {
-        this.scroll(-300);
-    },
+    next() { this.scroll(300); },
+    prev() { this.scroll(-300); },
 
     scroll(amount) {
-        const chart = document.querySelector(".snellen");
-        if (!chart) return;
-        const minOffset = Math.min(0, window.innerHeight - chart.scrollHeight - 70);
-        snellenOffset = Math.max(minOffset, Math.min(0, snellenOffset - amount));
-        chart.style.transform = `translateY(${snellenOffset}px)`;
+        snellenOffset -= amount;
+        this.clampOffset();
+    },
+
+    clampOffset() {
+        const container = document.getElementById("snellenChart");
+        const content = container?.querySelector(".calibrated-chart-content");
+        if (!container || !content) return;
+
+        const minimum = Math.min(0, container.clientHeight - content.scrollHeight);
+        snellenOffset = Math.max(minimum, Math.min(0, snellenOffset));
+        content.style.transform = `translateY(${snellenOffset}px)`;
     },
 
     updateIndicator() {
         const indicator = document.getElementById("levelIndicator");
-        if (indicator) indicator.innerText = `CHART ${snellenPage + 1} / 4`;
+        if (indicator) indicator.textContent = `CHART ${snellenPage + 1} / ${SNELLEN_PAGES.length}`;
     }
 };

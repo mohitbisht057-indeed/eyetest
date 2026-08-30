@@ -459,10 +459,19 @@ function renderFeature() {
     }
 
     if (currentTest === "snellen" && FEATURES.snellen) {
-        area.innerHTML = "";
-        FEATURES.snellen.render(area);
-        return;
+
+    area.innerHTML = "";
+
+    const controls = document.querySelector(".test-controls");
+
+    if (controls) {
+        controls.style.display = "none";
     }
+
+    FEATURES.snellen.render(area);
+
+    return;
+}
 
 
     /*
@@ -473,6 +482,12 @@ function renderFeature() {
 
     const size =
         calculateOptotypeSize(level.label);
+
+    const controls = document.querySelector(".test-controls");
+
+    if (controls) {
+        controls.style.display = "";
+    }
 
     area.innerHTML = "";
 
@@ -489,6 +504,13 @@ function renderFeature() {
         handler.render
     ) {
         handler.render(area, size);
+
+        if (
+            CORE_TESTS.includes(currentTest) ||
+            LANGUAGE_NAMES[currentTest]
+        ) {
+            addAcuitySideLabels(area, level.label);
+        }
     }
 
     updateLevelIndicator();
@@ -521,6 +543,20 @@ function updateLevelIndicator() {
         indicator.innerText =
             `PLATE ${currentIshiharaPlate + 1} / ${total}`;
 
+        return;
+    }
+
+    if (currentTest === "contrast" && FEATURES.contrast) {
+
+        indicator.innerText =
+            `CONTRAST ${FEATURES.contrast.getState() + 1} / ` +
+            FEATURES.contrast.totalStates;
+
+        return;
+    }
+
+    if (currentTest === "logmar" && FEATURES.logmar) {
+        FEATURES.logmar.updateIndicator();
         return;
     }
 
@@ -716,10 +752,11 @@ function nextFeature() {
             }
         }
 
-        document
-            .getElementById("testTitle")
-            .innerText =
-                getTestName(currentTest);
+        const nextTitle = document.getElementById("testTitle");
+
+        if (nextTitle) {
+            nextTitle.innerText = getTestName(currentTest);
+        }
 
         renderFeature();
     }
@@ -768,10 +805,11 @@ function previousFeature() {
             }
         }
 
-        document
-            .getElementById("testTitle")
-            .innerText =
-                getTestName(currentTest);
+        const previousTitle = document.getElementById("testTitle");
+
+        if (previousTitle) {
+            previousTitle.innerText = getTestName(currentTest);
+        }
 
         renderFeature();
     }
@@ -810,51 +848,87 @@ document.addEventListener(
             testScreen &&
             testScreen.style.display === "block"
         ) {
+if (event.key === "ArrowUp") {
 
-            if (event.key === "ArrowUp") {
+    event.preventDefault();
 
-                event.preventDefault();
+    if (currentTest === "snellen") {
+        previousLevel();
 
-                if (currentTest === "snellen") {
-                    previousLevel();
-                } else {
-                    nextLevel();
-                }
-            }
+    } else if (currentTest === "logmar") {
+    FEATURES["logmar"].scroll(-250);
+    }else {
+        nextLevel();
+    }
+}
 
-            if (event.key === "ArrowDown") {
 
-                event.preventDefault();
+if (event.key === "ArrowDown") {
 
-                if (currentTest === "snellen") {
-                    nextLevel();
-                } else {
-                    previousLevel();
-                }
-            }
+    event.preventDefault();
 
-            if (event.key === "ArrowLeft") {
+    if (currentTest === "snellen") {
+        nextLevel();
 
-                event.preventDefault();
+    }
+     else if (currentTest === "logmar") {
+    FEATURES["logmar"].scroll(250);}
+     else {
+        previousLevel();
+    }
+}
+            /* LEFT + RIGHT ARROW CONTROLS */
+/* LEFT + RIGHT ARROW CONTROLS */
+if (
+    event.key === "ArrowLeft" ||
+    event.key === "ArrowRight"
+) {
+    event.preventDefault();
 
-                if (currentTest === "snellen") {
-                    snellenPage = (snellenPage + 3) % 4;
-                    renderFeature();
-                } else {
-                    previousFeature();
-                }
-            }
+    const isRight = event.key === "ArrowRight";
 
-            if (event.key === "ArrowRight") {
+    if (currentTest === "educational") {
 
-                event.preventDefault();
+        if (isRight) {
+            nextEducationalImage();
+        } else {
+            previousEducationalImage();
+        }
 
-                if (currentTest === "snellen") {
-                    snellenPage = (snellenPage + 1) % 4;
-                    renderFeature();
-                } else {
-                    nextFeature();
-                }
+    } else if (currentTest === "snellen") {
+
+        if (isRight) {
+            snellenPage = (snellenPage + 1) % 4;
+        } else {
+            snellenPage = (snellenPage + 3) % 4;
+        }
+
+        snellenOffset = 0;
+
+        renderFeature();
+
+    } else if (currentTest === "logmar") {
+
+        if (isRight) {
+            FEATURES["logmar"].next();
+        } else {
+            FEATURES["logmar"].prev();
+        }
+
+    } else if (currentTest === "contrast") {
+
+        FEATURES.contrast.shuffle();
+
+    } else {
+
+        if (isRight) {
+            nextFeature();
+        } else {
+            previousFeature();
+        }
+    }
+
+
             }
 
             if (event.key === "Escape") {

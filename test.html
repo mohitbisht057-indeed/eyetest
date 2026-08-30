@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Landolt C Calibration Card</title>
+    <style>
+        :root { color-scheme: light; }
+        * { box-sizing: border-box; }
+        body { margin: 0; background: #e9edf2; color: #101217; font-family: Arial, Helvetica, sans-serif; }
+        .toolbar { position: sticky; top: 0; z-index: 2; display: flex; flex-wrap: wrap; align-items: center; gap: 14px 24px; padding: 14px 24px; background: #111827; color: #fff; box-shadow: 0 2px 10px #0004; }
+        .toolbar h1 { margin: 0 auto 0 0; font-size: 18px; letter-spacing: .04em; }
+        .field { display: flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 700; }
+        input { width: 76px; padding: 7px 8px; border: 1px solid #9ca3af; border-radius: 5px; font: inherit; }
+        button { padding: 8px 12px; border: 0; border-radius: 5px; color: #111827; background: #fbbf24; font: inherit; font-weight: 800; cursor: pointer; }
+        .notice { max-width: 1120px; margin: 16px auto; padding: 12px 18px; border-left: 4px solid #f59e0b; background: #fff8e7; font-size: 13px; line-height: 1.45; }
+        .card { width: 1920px; min-height: 1080px; margin: 0 auto 40px; padding: 42px 58px 64px; background: #fff; box-shadow: 0 2px 20px #0003; overflow: hidden; }
+        .card-header { display: flex; justify-content: space-between; gap: 24px; margin-bottom: 32px; padding-bottom: 18px; border-bottom: 2px solid #111; }
+        .card-header h2 { margin: 0 0 7px; font-size: 30px; letter-spacing: .08em; }
+        .card-header p, .specs { margin: 0; color: #4b5563; font-size: 15px; line-height: 1.45; }
+        .specs { min-width: 330px; text-align: right; }
+        .chart { display: grid; grid-template-columns: 1fr 1fr; gap: 34px 70px; align-items: start; }
+        .optotype { display: grid; grid-template-columns: 150px 1fr; align-items: center; min-height: 150px; border-bottom: 1px solid #e5e7eb; }
+        .label { font-size: 23px; font-weight: 800; }
+        .label small { display: block; margin-top: 7px; color: #6b7280; font-size: 13px; font-weight: 600; }
+        .c-wrap { display: flex; align-items: center; justify-content: center; min-height: 100%; }
+        .landolt-c { display: block; overflow: visible; }
+        .footer { margin-top: 38px; padding-top: 18px; border-top: 2px solid #111; color: #4b5563; font-size: 13px; line-height: 1.45; }
+        @media print { .toolbar, .notice { display: none; } body { background: #fff; } .card { margin: 0; box-shadow: none; } }
+        @media (max-width: 1920px) { .card { transform-origin: top left; } }
+    </style>
+</head>
+<body>
+    <section class="toolbar" aria-label="Calibration settings">
+        <h1>LANDOLT C · CALIBRATION CARD</h1>
+        <label class="field">Viewing distance (m) <input id="distance" type="number" min="0.1" step="0.01" value="3"></label>
+        <label class="field">Panel DPI <input id="dpi" type="number" min="1" step="0.1" value="127"></label>
+        <button id="apply" type="button">Update card</button>
+    </section>
+
+    <p class="notice">
+        Set the browser to 100% zoom and display this card at its native pixel resolution. The default values reproduce the requested 3 m / 10 ft calibration using 127 physical pixels per inch. On Retina or scaled displays, adjust the DPI value until a ruler confirms the displayed size.
+    </p>
+
+    <main class="card" id="card">
+        <header class="card-header">
+            <div>
+                <h2>LANDOLT C CALIBRATION CHART</h2>
+                <p>One optotype per Snellen size · opening direction changes for quick orientation checks.</p>
+            </div>
+            <p class="specs" id="specs"></p>
+        </header>
+        <section class="chart" id="chart" aria-label="Landolt C optotypes at calibrated sizes"></section>
+        <footer class="footer">
+            Standard geometry: outer diameter subtends 5 arcminutes at 6/6; stroke and gap are each one-fifth of the outer diameter (1 arcminute at 6/6). Values are computed with S = 2D × tan(θ / 2), where D is viewing distance and θ is 5 arcminutes multiplied by the Snellen denominator / 6.
+        </footer>
+    </main>
+
+    <script>
+        const levels = [60, 48, 38, 36, 30, 24, 19, 18, 15, 12, 9.5, 9, 7.5, 6, 5];
+        const rotations = [0, 90, 180, 270];
+
+        function landoltSvg(pixelSize, rotation) {
+            return `
+                <svg class="landolt-c" width="${pixelSize.toFixed(3)}" height="${pixelSize.toFixed(3)}" viewBox="0 0 100 100" aria-label="Landolt C">
+                    <g transform="rotate(${rotation} 50 50)">
+                        <circle cx="50" cy="50" r="40" fill="none" stroke="#000" stroke-width="20"></circle>
+                        <rect x="80" y="40" width="20" height="20" fill="#fff"></rect>
+                    </g>
+                </svg>`;
+        }
+
+        function render() {
+            const distanceMetres = Number(document.getElementById('distance').value) || 3;
+            const dpi = Number(document.getElementById('dpi').value) || 127;
+            const distanceMm = distanceMetres * 1000;
+            const pixelsPerMm = dpi / 25.4;
+            const chart = document.getElementById('chart');
+
+            chart.innerHTML = levels.map((denominator, index) => {
+                const multiplier = denominator / 6;
+                const angleDegrees = (5 / 60) * multiplier;
+                const diameterMm = 2 * distanceMm * Math.tan((angleDegrees / 2) * Math.PI / 180);
+                const gapMm = diameterMm / 5;
+                const pixelSize = diameterMm * pixelsPerMm;
+                const displayMm = diameterMm.toFixed(diameterMm < 10 ? 2 : 1);
+                const displayGap = gapMm.toFixed(gapMm < 10 ? 2 : 1);
+
+                return `
+                    <article class="optotype">
+                        <div class="label">6/${denominator}<small>${displayMm} mm · gap ${displayGap} mm<br>${pixelSize.toFixed(1)} px</small></div>
+                        <div class="c-wrap">${landoltSvg(pixelSize, rotations[index % rotations.length])}</div>
+                    </article>`;
+            }).join('');
+
+            document.getElementById('specs').innerHTML =
+                `Distance: <strong>${distanceMetres.toFixed(2)} m</strong><br>` +
+                `Display density: <strong>${dpi.toFixed(1)} DPI</strong><br>` +
+                `Density: <strong>${pixelsPerMm.toFixed(3)} px/mm</strong>`;
+        }
+
+        document.getElementById('apply').addEventListener('click', render);
+        document.querySelectorAll('input').forEach(input => input.addEventListener('input', render));
+        render();
+    </script>
+</body>
+</html>
