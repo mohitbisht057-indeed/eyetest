@@ -106,9 +106,6 @@ function openLanguageSettings() {
 }
 
 function closeLanguageSettings() {
-    if (!selectedLanguages.length) {
-        selectedLanguages = [...DEFAULT_SELECTED_LANGUAGES];
-    }
     localStorage.setItem("selectedLanguages", JSON.stringify(selectedLanguages));
     renderLanguageMenuCards();
     showScreen("settingsPanel");
@@ -404,11 +401,7 @@ function renderLanguages() {
 function renderLanguageMenuCards() {
     const modern = document.getElementById("modernLanguageCards");
     const device = document.getElementById("deviceLanguageCards");
-    // Old installs may have an empty saved selection. Do not leave the home
-    // screen without language cards in that case.
-    const languagesToShow = selectedLanguages.length
-        ? selectedLanguages
-        : DEFAULT_SELECTED_LANGUAGES;
+    const languagesToShow = selectedLanguages;
 
     if (modern) {
         modern.innerHTML = languagesToShow.map(language => `
@@ -459,7 +452,7 @@ function createLanguageButtons(container, languages) {
             } else {
 
                 if (selectedLanguages.length >= 3) {
-                    return;
+                    selectedLanguages.pop();
                 }
 
                 selectedLanguages.push(language);
@@ -468,6 +461,7 @@ function createLanguageButtons(container, languages) {
             }
 
             updateLanguageCount();
+            renderLanguages();
             renderLanguageMenuCards();
             localStorage.setItem("selectedLanguages", JSON.stringify(selectedLanguages));
         };
@@ -484,6 +478,18 @@ function updateLanguageCount() {
     if (count) {
         count.innerText =
             `${selectedLanguages.length} / 3 SELECTED`;
+    }
+
+    updateLanguageSelectionHint();
+}
+
+function updateLanguageSelectionHint() {
+    const hint = document.getElementById("languageSelectionHint");
+
+    if (hint) {
+        hint.textContent = selectedLanguages.length >= 3
+            ? "Three languages selected. Choosing another replaces the most recently selected language."
+            : "Select up to three languages. Choosing a fourth replaces the most recently selected language.";
     }
 }
 
@@ -786,7 +792,9 @@ function loadSavedSettings() {
         }
     }
 
-    if (!selectedLanguages.length) {
+    // Use defaults only for a first-time install. An intentionally empty
+    // saved list is a valid user selection and must not be replaced for them.
+    if (!selectedLanguages.length && !savedLanguages) {
         selectedLanguages = [...DEFAULT_SELECTED_LANGUAGES];
         localStorage.setItem("selectedLanguages", JSON.stringify(selectedLanguages));
     }

@@ -20,7 +20,7 @@ FEATURES["numerics"] = {
                 display:flex;
                 justify-content:center;
                 align-items:center;
-                gap:${Math.max(20, size * 0.15)}px;
+                gap:${Math.max(56, size * 0.5)}px;
                 width:100%;
             ">
                 ${numbers.map(number => `

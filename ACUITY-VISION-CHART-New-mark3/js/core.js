@@ -37,6 +37,7 @@ let languageSixFourIndex = 0;
 let alphabetSixFourIndex = 0;
 
 let currentEye = "RIGHT EYE";
+let remoteMenuIndex = 0;
 
 
 /* ================= TEST GROUPS ================= */
@@ -358,6 +359,41 @@ function showScreen(screenId) {
 
 function closeTest() {
     showScreen("menu");
+    syncRemoteMenuSelection();
+}
+
+/* ================= REMOTE MENU NAVIGATION ================= */
+
+function getRemoteMenuTargets() {
+    return Array.from(document.querySelectorAll(
+        "#menu button[onclick]"
+    )).filter(button => {
+        const style = window.getComputedStyle(button);
+        return style.display !== "none" && style.visibility !== "hidden" &&
+            button.getClientRects().length > 0;
+    });
+}
+
+function syncRemoteMenuSelection() {
+    const targets = getRemoteMenuTargets();
+    if (!targets.length) return;
+
+    remoteMenuIndex = Math.max(0, Math.min(remoteMenuIndex, targets.length - 1));
+    targets.forEach(button => button.classList.remove("remote-selected"));
+    targets[remoteMenuIndex].classList.add("remote-selected");
+}
+
+function moveRemoteMenuSelection(amount) {
+    const targets = getRemoteMenuTargets();
+    if (!targets.length) return;
+
+    remoteMenuIndex = (remoteMenuIndex + amount + targets.length) % targets.length;
+    syncRemoteMenuSelection();
+}
+
+function activateRemoteMenuSelection() {
+    const targets = getRemoteMenuTargets();
+    if (targets[remoteMenuIndex]) targets[remoteMenuIndex].click();
 }
 
 
@@ -837,109 +873,59 @@ function getFeatureList() {
                     KEYBOARD CONTROLS
 ===================================================== */
 
-document.addEventListener(
-    "keydown",
-    function (event) {
+document.addEventListener("keydown", function (event) {
+    const testScreen = document.getElementById("testScreen");
+    const isTestOpen = testScreen && testScreen.style.display === "block";
 
-        const testScreen =
-            document.getElementById("testScreen");
+    if (!isTestOpen) {
+        const menu = document.getElementById("menu");
+        if (!menu || menu.style.display === "none") return;
 
-        if (
-            testScreen &&
-            testScreen.style.display === "block"
-        ) {
-if (event.key === "ArrowUp") {
-
-    event.preventDefault();
-
-    if (currentTest === "snellen") {
-        previousLevel();
-
-    } else if (currentTest === "logmar") {
-    FEATURES["logmar"].scroll(-250);
-    }else {
-        nextLevel();
+        if (event.key === "ArrowUp" || event.key === "ArrowDown") {
+            event.preventDefault();
+            moveRemoteMenuSelection(event.key === "ArrowUp" ? -1 : 1);
+        } else if (event.key === "Enter" || event.key === " " || event.key === "ArrowRight") {
+            event.preventDefault();
+            activateRemoteMenuSelection();
+        }
+        return;
     }
-}
 
-
-if (event.key === "ArrowDown") {
-
-    event.preventDefault();
-
-    if (currentTest === "snellen") {
-        nextLevel();
-
-    }
-     else if (currentTest === "logmar") {
-    FEATURES["logmar"].scroll(250);}
-     else {
-        previousLevel();
-    }
-}
-            /* LEFT + RIGHT ARROW CONTROLS */
-/* LEFT + RIGHT ARROW CONTROLS */
-if (
-    event.key === "ArrowLeft" ||
-    event.key === "ArrowRight"
-) {
-    event.preventDefault();
-
-    const isRight = event.key === "ArrowRight";
-
-    if (currentTest === "educational") {
-
-        if (isRight) {
-            nextEducationalImage();
+    if (event.key === "ArrowUp" || event.key === "ArrowDown") {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        const forward = event.key === "ArrowUp";
+        if (currentTest === "snellen") {
+            forward ? previousLevel() : nextLevel();
+        } else if (currentTest === "logmar") {
+            FEATURES.logmar.scroll(forward ? -250 : 250);
         } else {
-            previousEducationalImage();
+            forward ? nextLevel() : previousLevel();
         }
-
-    } else if (currentTest === "snellen") {
-
-        if (isRight) {
-            snellenPage = (snellenPage + 1) % 4;
-        } else {
-            snellenPage = (snellenPage + 3) % 4;
-        }
-
-        snellenOffset = 0;
-
-        renderFeature();
-
-    } else if (currentTest === "logmar") {
-
-        if (isRight) {
-            FEATURES["logmar"].next();
-        } else {
-            FEATURES["logmar"].prev();
-        }
-
-    } else if (currentTest === "contrast") {
-
-        FEATURES.contrast.shuffle();
-
-    } else {
-
-        if (isRight) {
-            nextFeature();
-        } else {
-            previousFeature();
-        }
+        return;
     }
 
-
-            }
-
-            if (event.key === "Escape") {
-
-                event.preventDefault();
-
-                closeTest();
-            }
+    if (event.key === "ArrowRight") {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        const feature = FEATURES[currentTest];
+        if (feature && typeof feature.randomize === "function") {
+            feature.randomize();
+        } else if (currentTest === "contrast" && FEATURES.contrast) {
+            FEATURES.contrast.shuffle();
+        } else {
+            renderFeature();
         }
+        return;
     }
-);
+
+    // Remote OK/back and any non-arrow key always return to the home menu.
+    if (!event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        closeTest();
+    }
+});
 
 
 /* =====================================================
@@ -958,6 +944,7 @@ document.addEventListener(
         }
 
         showScreen("menu");
+        syncRemoteMenuSelection();
 
         requestAnimationFrame(() => {
             document.body.classList.add("app-ready");

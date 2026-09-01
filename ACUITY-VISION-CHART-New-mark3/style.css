@@ -45,8 +45,11 @@
     --content-max: 1180px;
 }
 
-html {
-    scrollbar-gutter: stable;
+html,
+body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
 }
 
 body {
@@ -73,8 +76,8 @@ a:focus-visible {
 /* ================= MENU ================= */
 
 #menu {
-    width: 100vw;
-    height: 100vh;
+    width: 100%;
+    height: 100%;
     background:
         radial-gradient(1200px 600px at 85% -10%, rgba(20, 33, 61, 0.06), transparent 60%),
         linear-gradient(180deg, #ffffff 0%, var(--theme-tint) 340px);
@@ -391,8 +394,8 @@ body.ui-modern .home-layout-modern {
 
 #testScreen {
     display: none;
-    width: 100vw;
-    height: 100vh;
+    width: 100%;
+    height: 100%;
     background: white;
     position: relative;
 }
@@ -562,8 +565,8 @@ body.ui-modern .home-layout-modern {
 .landolt-chart {
     position: fixed !important;
     inset: 0 !important;
-    width: 100vw !important;
-    height: 100vh !important;
+    width: 100% !important;
+    height: 100% !important;
     padding: 24px clamp(88px, 12vw, 190px);
 }
 
@@ -859,8 +862,8 @@ body.ui-modern .home-layout-modern {
     display: none;
     position: fixed;
     inset: 0;
-    width: 100vw;
-    height: 100vh;
+    width: 100%;
+    height: 100%;
     background: var(--theme-tint);
     z-index: 10000;
     overflow-y: auto;
@@ -1082,8 +1085,8 @@ body.ui-modern .home-layout-modern {
     display: none;
     position: fixed;
     inset: 0;
-    width: 100vw;
-    height: 100vh;
+    width: 100%;
+    height: 100%;
     background: #ffffff;
     z-index: 10000;
     overflow-y: auto;
@@ -1283,35 +1286,6 @@ body.theme-changing #languageScreen {
     font-weight: 700;
     letter-spacing: 0;
     white-space: nowrap;
-}
-
-.header-settings {
-    width: 60px;
-    height: 60px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: none;
-    background: transparent;
-    color: currentColor;
-    cursor: pointer;
-    padding: 0;
-    border-radius: 50%;
-    transition: background var(--fast) var(--ease), transform var(--fast) var(--ease);
-}
-
-.header-settings:hover {
-    background: rgba(255, 255, 255, 0.10);
-}
-
-.header-settings:active {
-    transform: scale(0.92);
-}
-
-.settings-gear {
-    font-size: 31px;
-    line-height: 1;
-    display: block;
 }
 
 .vision-grid {
@@ -1802,16 +1776,6 @@ body.theme-changing #languageScreen {
         white-space: normal;
     }
 
-    .header-settings {
-        width: 46px;
-        height: 46px;
-        flex: 0 0 auto;
-    }
-
-    .settings-gear {
-        font-size: 25px;
-    }
-
     .vision-grid {
         height: calc(100vh - 64px);
         padding: var(--space-3);
@@ -1831,6 +1795,19 @@ body.theme-changing #languageScreen {
 /* Dynamically rendered language choices participate in the device grid. */
 .language-card-slots {
     display: contents;
+}
+
+.remote-selected {
+    outline: 4px solid #fbbf24 !important;
+    outline-offset: 3px;
+}
+
+.language-selection-hint {
+    margin: 0;
+    padding: 12px 24px 0;
+    color: var(--theme-muted);
+    font-size: 14px;
+    font-weight: 600;
 }
 
 .dynamic-language-icon {

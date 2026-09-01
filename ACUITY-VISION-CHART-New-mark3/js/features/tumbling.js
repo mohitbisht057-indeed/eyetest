@@ -5,6 +5,8 @@ let tumblingSixFourIndex = 0;
 
 FEATURES["tumbling"] = {
 
+    directions: [],
+
     render(area, size) {
 
         const rotations = [0, 90, 180, 270];
@@ -29,7 +31,7 @@ FEATURES["tumbling"] = {
                     display:flex;
                     align-items:center;
                     justify-content:center;
-                    gap:${Math.max(20, size * 0.15)}px;
+                    gap:${Math.max(56, size * 0.5)}px;
                     color:#000000;
                     opacity:1;
                 "
@@ -48,9 +50,8 @@ FEATURES["tumbling"] = {
                                     font-weight:700;
                                     line-height:1;
                                     transform:rotate(${
-                                        rotations[
-                                            (index + directionOffset) %
-                                            rotations.length
+                                        this.directions[index] ?? rotations[
+                                            (index + directionOffset) % rotations.length
                                         ]
                                     }deg);
                                     opacity:1;
@@ -64,6 +65,16 @@ FEATURES["tumbling"] = {
 
             </div>
         `;
+    },
+
+    randomize() {
+        const count = currentLevel === 7 ? 8 : currentLevel + 1;
+        const rotations = [0, 90, 180, 270];
+        this.directions = Array.from(
+            { length: count },
+            () => rotations[Math.floor(Math.random() * rotations.length)]
+        );
+        renderFeature();
     },
 
 

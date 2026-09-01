@@ -2,6 +2,8 @@
 
 FEATURES["landolt"] = {
 
+    directions: [],
+
     render(area, size) {
 
         const count = currentLevel + 1;
@@ -27,7 +29,7 @@ FEATURES["landolt"] = {
                     align-items:center;
                     justify-content:center;
                     flex-wrap:wrap;
-                    gap:${Math.max(10, cSize * 0.15)}px;
+                    gap:${Math.max(56, cSize * 0.5)}px;
                     opacity:1;
                 "
             >
@@ -38,12 +40,22 @@ FEATURES["landolt"] = {
                         (_, i) =>
                             createLandoltCSvg(
                                 cSize,
-                                rotations[i % 4]
+                                this.directions[i] ?? rotations[i % 4]
                             )
                     ).join("")
                 }
 
             </div>
         `;
+    },
+
+    randomize() {
+        const count = currentLevel + 1;
+        const rotations = [0, 90, 180, 270];
+        this.directions = Array.from(
+            { length: count },
+            () => rotations[Math.floor(Math.random() * rotations.length)]
+        );
+        renderFeature();
     }
 };

@@ -28,10 +28,6 @@
         <div class="home-kicker">Screening Workspace</div>
         <div class="home-title">Acuity Vision Chart</div>
     </div>
-    <button type="button" class="home-settings-btn" onclick="openSettings()">
-        <span>⚙</span>
-        <span>Settings</span>
-    </button>
 </header>
 
 <main class="home-main">
@@ -180,14 +176,6 @@
             <div class="brand-title">ACUITY VISION CHART</div>
         </div>
 
-        <button
-            type="button"
-            class="header-settings"
-            onclick="openSettings()"
-            aria-label="Settings"
-        >
-            <span class="settings-gear">⚙</span>
-        </button>
     </header>
 
     <main class="vision-grid">
@@ -497,6 +485,10 @@
         <span>LANGUAGE</span>
         <span id="languageCount">0 / 3 SELECTED</span>
     </div>
+
+    <p id="languageSelectionHint" class="language-selection-hint" aria-live="polite">
+        Select up to three languages. Choosing a fourth replaces the most recently selected language.
+    </p>
 
     <div class="language-content">
 
