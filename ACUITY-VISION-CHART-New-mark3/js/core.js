@@ -1192,6 +1192,66 @@ document.addEventListener(
             getComputedStyle(testScreen).display !== "none"
         ) {
 
+/* ================= EDUCATIONAL REMOTE NAVIGATION ================= */
+
+if (currentTest === "educational") {
+
+    /* TOPIC CARDS */
+    if (typeof educationalMode !== "undefined" &&
+        educationalMode === "topics") {
+
+        if (event.key === "ArrowLeft") {
+            event.preventDefault();
+            moveEducationalSelection("left");
+            return;
+        }
+
+        if (event.key === "ArrowRight") {
+            event.preventDefault();
+            moveEducationalSelection("right");
+            return;
+        }
+
+        if (event.key === "ArrowUp") {
+            event.preventDefault();
+            moveEducationalSelection("up");
+            return;
+        }
+
+        if (event.key === "ArrowDown") {
+            event.preventDefault();
+            moveEducationalSelection("down");
+            return;
+        }
+
+        if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            activateEducationalSelection();
+            return;
+        }
+    }
+
+
+    /* IMAGES */
+    if (typeof educationalMode !== "undefined" &&
+        educationalMode === "images") {
+
+        if (event.key === "ArrowLeft") {
+            event.preventDefault();
+            previousEducationalImage();
+            return;
+        }
+
+        if (event.key === "ArrowRight") {
+            event.preventDefault();
+            nextEducationalImage();
+            return;
+        }
+
+        return;
+    }
+}
+
             /*
              * UP
              */
@@ -1251,24 +1311,47 @@ document.addEventListener(
             /*
              * LEFT
              */
-           if (event.key === "ArrowLeft") {
+if (event.key === "ArrowLeft") {
 
     event.preventDefault();
 
-    previousFeature();
+    if (currentTest === "logmar") {
+        FEATURES["logmar"].prev();
+    } else if (currentTest === "snellen") {
+        snellenPage--;
+
+        if (snellenPage < 0) {
+            snellenPage = SNELLEN_PAGES.length - 1;
+        }
+
+        snellenOffset = 0;
+        renderFeature();
+    } else {
+        previousFeature();
+    }
 
     return;
 }
 
 
-            /*
-             * RIGHT
-             */
-            if (event.key === "ArrowRight") {
+if (event.key === "ArrowRight") {
 
     event.preventDefault();
 
-    nextFeature();
+    if (currentTest === "logmar") {
+        FEATURES["logmar"].next();
+    } else if (currentTest === "snellen") {
+        snellenPage++;
+
+        if (snellenPage >= SNELLEN_PAGES.length) {
+            snellenPage = 0;
+        }
+
+        snellenOffset = 0;
+        renderFeature();
+    } else {
+        nextFeature();
+    }
 
     return;
 }
