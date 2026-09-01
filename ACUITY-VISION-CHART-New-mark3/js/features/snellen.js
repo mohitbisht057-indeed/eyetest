@@ -21,17 +21,16 @@ FEATURES["snellen"] = {
                         const size = calculateOptotypeSize(level.label);
                         const symbols = rows[index].split(" ");
                         const isLandolt = snellenPage === 3;
-                        const rowWidth = 220 + index * 135;
-                        const spacing = Math.max(18, size * 0.65);
+                        const spacing = getOptotypeGap(size);
 
                         return `
                             <div class="calibrated-chart-row" style="min-height:${Math.ceil(size + 42)}px">
                                 <div class="chart-acuity chart-acuity-left">${level.label}</div>
-                                <div class="chart-optotypes snellen-optotypes" style="width:min(68vw, ${rowWidth}px);gap:${spacing}px">
+                                <div class="chart-optotypes snellen-optotypes" style="gap:${spacing}px">
                                     ${isLandolt
                                         ? symbols.map((_, i) => createLandoltCSvg(size, [0, 90, 180, 270][i % 4])).join("")
                                         : symbols.map(symbol => `
-                                            <span class="snellen-symbol" style="width:${Math.round(size)}px;height:${Math.round(size)}px;font-size:${Math.round(size)}px">${symbol}</span>
+                                            <span class="snellen-symbol acuity-optotype-box" style="width:${Math.round(size)}px;height:${Math.round(size)}px;font-size:${Math.round(size)}px">${symbol}</span>
                                         `).join("")}
                                 </div>
                                 <div class="chart-acuity chart-acuity-right">${imperialAcuityLabel(level.label)}</div>

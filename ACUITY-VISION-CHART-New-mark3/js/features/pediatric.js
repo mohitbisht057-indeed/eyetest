@@ -40,7 +40,7 @@ FEATURES["pediatric"] = {
                 justify-content:center;
                 align-items:center;
                 flex-wrap:wrap;
-                gap:${Math.max(20, size * 0.15)}px;
+                gap:${currentImages.length > 1 ? getOptotypeGap(size) : 0}px;
                 width:100%;
             ">
                 ${currentImages.map(src => `

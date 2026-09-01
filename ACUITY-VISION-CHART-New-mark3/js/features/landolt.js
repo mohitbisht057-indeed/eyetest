@@ -29,7 +29,7 @@ FEATURES["landolt"] = {
                     align-items:center;
                     justify-content:center;
                     flex-wrap:wrap;
-                    gap:${Math.max(56, cSize * 0.5)}px;
+                    gap:${count > 1 ? getOptotypeGap(cSize) : 0}px;
                     opacity:1;
                 "
             >

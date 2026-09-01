@@ -100,7 +100,7 @@ FEATURES["_language"] = {
                     display:flex;
                     justify-content:center;
                     align-items:center;
-                    gap:${Math.max(56, size * 0.5)}px;
+                    gap:${currentLetters.length > 1 ? getOptotypeGap(size) : 0}px;
                     width:100%;
                     ${direction}
                 "
@@ -109,6 +109,10 @@ FEATURES["_language"] = {
                     <span
                         class="language"
                         style="
+                            display:grid;
+                            place-items:center;
+                            width:${size}px;
+                            height:${size}px;
                             font-size:${size}px;
                             font-weight:bold;
                             line-height:1;

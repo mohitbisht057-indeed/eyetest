@@ -14,6 +14,7 @@ let selectedLanguages = [
 const DEFAULT_SELECTED_LANGUAGES = ["hindi", "punjabi", "urdu"];
 
 const DEFAULT_PANEL_DPI = 127;
+const PANEL_DPI_BY_DISPLAY_KEY = "panelDpiByDisplay";
 let calibrationOffset = 0;
 let calibrationPreviewLevel = 0;
 let currentDistanceMeters = 3.0;
@@ -23,6 +24,44 @@ let selectedDistanceLabel = "10 Feet (3.0 Mtrs)";
 // is still preserved in local storage.
 let currentUiId = "device";
 let themeAnimationTimer = null;
+
+function getDisplayCalibrationKey() {
+    return [
+        window.screen?.width || 0,
+        window.screen?.height || 0,
+        Number(window.devicePixelRatio || 1).toFixed(2)
+    ].join("x");
+}
+
+function savePanelDpiForCurrentDisplay() {
+    let savedByDisplay = {};
+
+    try {
+        savedByDisplay = JSON.parse(
+            localStorage.getItem(PANEL_DPI_BY_DISPLAY_KEY) || "{}"
+        ) || {};
+    } catch (_) {
+        // A malformed old preference should not stop calibration from saving.
+    }
+
+    savedByDisplay[getDisplayCalibrationKey()] = panelDpi;
+    localStorage.setItem(PANEL_DPI_BY_DISPLAY_KEY, JSON.stringify(savedByDisplay));
+}
+
+function loadPanelDpiForCurrentDisplay() {
+    try {
+        const savedByDisplay = JSON.parse(
+            localStorage.getItem(PANEL_DPI_BY_DISPLAY_KEY) || "{}"
+        );
+        const dpi = Number(savedByDisplay?.[getDisplayCalibrationKey()]);
+
+        if (Number.isFinite(dpi) && dpi > 0) return dpi;
+    } catch (_) {
+        // Fall through to the legacy, single-display preference.
+    }
+
+    return null;
+}
 
 /* ================= SETTINGS PANEL ================= */
 
@@ -558,6 +597,22 @@ function syncSelectedDistanceButton() {
 
 // All acuity optotypes use this calibrated physical size: Landolt C,
 // Tumbling E, and every selected language chart.
+//
+// `panelDpi` is the panel's *physical* pixel density. CSS dimensions are in
+// CSS pixels, which may represent more than one panel pixel on a HiDPI screen.
+// Converting here keeps the displayed millimetre size stable across normal and
+// high-density displays when each display is calibrated with its physical DPI.
+function getCssPixelsPerMm() {
+    const deviceScale = Math.max(1, Number(window.devicePixelRatio) || 1);
+    return (panelDpi / deviceScale) / 25.4;
+}
+
+// Keep every multi-optotype chart on the same layout as the Landolt C chart.
+// The 80 px minimum preserves the existing Landolt C minimum gap.
+function getOptotypeGap(pixelSize) {
+    return Math.max(80, Number(pixelSize) * 0.75);
+}
+
 function calculateOptotypeSize(levelLabel) {
 
     const denominator = parseFloat(levelLabel.split("/")[1]);
@@ -574,9 +629,9 @@ function calculateOptotypeSize(levelLabel) {
     const physicalSizeMm =
         2 * distanceMm * Math.tan(angleRadians / 2);
 
-    // Convert the required physical size to panel pixels. 25.4 mm = 1 inch.
-    // The optional offset remains available for a ruler-based fine adjustment.
-    const pixelsPerMm = (panelDpi / 25.4) * (1 + calibrationOffset / 100);
+    // Convert millimetres to CSS pixels. 25.4 mm = 1 inch. The optional
+    // offset remains available for a ruler-based fine adjustment.
+    const pixelsPerMm = getCssPixelsPerMm() * (1 + calibrationOffset / 100);
 
     return physicalSizeMm * pixelsPerMm;
 }
@@ -662,6 +717,7 @@ function updateCalibrationPhysicalSettings() {
     if (Number.isFinite(dpi) && dpi > 0) {
         panelDpi = dpi;
         localStorage.setItem("panelDpi", panelDpi);
+        savePanelDpiForCurrentDisplay();
     }
 
     updateCalibrationPreview();
@@ -721,6 +777,7 @@ function saveCalibration() {
         calibrationOffset
     );
     localStorage.setItem("panelDpi", panelDpi);
+    savePanelDpiForCurrentDisplay();
     localStorage.setItem("calibrationDistanceMeters", currentDistanceMeters);
 
     // Apply a newly saved calibration immediately if a chart is open.
@@ -756,7 +813,8 @@ function loadSavedSettings() {
         selectedDistanceLabel = `${savedCalibrationDistance.toFixed(2)} Mtrs`;
     }
 
-    const savedPanelDpi = parseFloat(localStorage.getItem("panelDpi"));
+    const savedPanelDpi = loadPanelDpiForCurrentDisplay() ||
+        parseFloat(localStorage.getItem("panelDpi"));
 
     if (Number.isFinite(savedPanelDpi) && savedPanelDpi > 0) {
         panelDpi = savedPanelDpi;

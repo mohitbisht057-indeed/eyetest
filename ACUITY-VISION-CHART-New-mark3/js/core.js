@@ -895,6 +895,7 @@ document.addEventListener("keydown", function (event) {
         event.preventDefault();
         event.stopImmediatePropagation();
         const forward = event.key === "ArrowUp";
+        const shuffleLandolt = currentTest === "landolt";
         if (currentTest === "snellen") {
             forward ? previousLevel() : nextLevel();
         } else if (currentTest === "logmar") {
@@ -902,19 +903,21 @@ document.addEventListener("keydown", function (event) {
         } else {
             forward ? nextLevel() : previousLevel();
         }
+
+        // Every size change presents a new set of Landolt C directions.
+        if (shuffleLandolt && FEATURES.landolt) {
+            FEATURES.landolt.randomize();
+        }
         return;
     }
 
-    if (event.key === "ArrowRight") {
+    if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
         event.preventDefault();
         event.stopImmediatePropagation();
-        const feature = FEATURES[currentTest];
-        if (feature && typeof feature.randomize === "function") {
-            feature.randomize();
-        } else if (currentTest === "contrast" && FEATURES.contrast) {
-            FEATURES.contrast.shuffle();
+        if (event.key === "ArrowRight") {
+            nextFeature();
         } else {
-            renderFeature();
+            previousFeature();
         }
         return;
     }

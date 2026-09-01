@@ -31,7 +31,7 @@ FEATURES["tumbling"] = {
                     display:flex;
                     align-items:center;
                     justify-content:center;
-                    gap:${Math.max(56, size * 0.5)}px;
+                    gap:${count > 1 ? getOptotypeGap(size) : 0}px;
                     color:#000000;
                     opacity:1;
                 "
@@ -43,7 +43,10 @@ FEATURES["tumbling"] = {
                         (_, index) => `
                             <span
                                 style="
-                                    display:inline-block;
+                                    display:grid;
+                                    place-items:center;
+                                    width:${size}px;
+                                    height:${size}px;
                                     color:#000000;
                                     font-family:Arial,sans-serif;
                                     font-size:${size}px;

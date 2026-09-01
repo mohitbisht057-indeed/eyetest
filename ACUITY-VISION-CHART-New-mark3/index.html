@@ -449,10 +449,10 @@
                 <label>Viewing distance (m)
                     <input id="calibrationDistance" type="number" min="0.1" step="0.01" value="3" inputmode="decimal" onchange="updateCalibrationPhysicalSettings()">
                 </label>
-                <label>Panel DPI
+                <label>Physical panel DPI
                     <input id="calibrationDpi" type="number" min="1" step="0.1" value="127" inputmode="decimal" onchange="updateCalibrationPhysicalSettings()">
                 </label>
-                <p>Default: 3 m at 127 DPI. Use a ruler to fine-tune the displayed size if required.</p>
+                <p>Enter this display's physical DPI (for example, 80 for an 80-DPI monitor). HiDPI browser scaling is handled automatically; use a ruler to fine-tune if required.</p>
             </div>
             <div class="calibration-size-control">
                 <button type="button" class="calibration-arrow vertical" onclick="changeCalibration(1)" aria-label="Increase calibration">⌃</button>

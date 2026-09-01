@@ -632,12 +632,18 @@ body.ui-modern .home-layout-modern {
     line-height: 1;
 }
 
+.acuity-optotype-box {
+    display: grid !important;
+    place-items: center;
+    flex: 0 0 auto;
+}
+
 .chart-optotypes .landolt-c-svg {
     flex: 0 0 auto;
 }
 
 .snellen-optotypes {
-    justify-content: space-between;
+    justify-content: center;
 }
 
 .chart-optotypes .snellen-symbol {

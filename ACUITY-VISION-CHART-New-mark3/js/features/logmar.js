@@ -25,10 +25,10 @@ FEATURES["logmar"] = {
                         return `
                             <div class="calibrated-chart-row" style="min-height:${Math.ceil(size + 42)}px">
                                 <div class="chart-acuity chart-acuity-left">${level.label}</div>
-                                <div class="chart-optotypes" style="gap:${Math.max(12, size * 0.28)}px">
+                                <div class="chart-optotypes" style="gap:${getOptotypeGap(size)}px">
                                     ${isLandolt
                                         ? symbols.map((_, i) => createLandoltCSvg(size, [0, 90, 180, 270][i % 4])).join("")
-                                        : symbols.map(symbol => `<span style="font-size:${Math.round(size)}px">${symbol}</span>`).join("")}
+                                        : symbols.map(symbol => `<span class="acuity-optotype-box" style="width:${Math.round(size)}px;height:${Math.round(size)}px;font-size:${Math.round(size)}px">${symbol}</span>`).join("")}
                                 </div>
                                 <div class="chart-acuity chart-acuity-right">${imperialAcuityLabel(level.label)}</div>
                             </div>`;
