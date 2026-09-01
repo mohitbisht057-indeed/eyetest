@@ -870,65 +870,445 @@ function getFeatureList() {
 
 
 /* =====================================================
-                    KEYBOARD CONTROLS
+                REMOTE CONTROL NAVIGATION
 ===================================================== */
 
-document.addEventListener("keydown", function (event) {
-    const testScreen = document.getElementById("testScreen");
-    const isTestOpen = testScreen && testScreen.style.display === "block";
+let menuSelectedIndex = 0;
 
-    if (!isTestOpen) {
-        const menu = document.getElementById("menu");
-        if (!menu || menu.style.display === "none") return;
 
-        if (event.key === "ArrowUp" || event.key === "ArrowDown") {
-            event.preventDefault();
-            moveRemoteMenuSelection(event.key === "ArrowUp" ? -1 : 1);
-        } else if (event.key === "Enter" || event.key === " " || event.key === "ArrowRight") {
-            event.preventDefault();
-            activateRemoteMenuSelection();
-        }
+/* Get only visible menu cards */
+function getVisibleMenuCards() {
+
+    return Array.from(
+        document.querySelectorAll(
+            ".home-layout:not([aria-hidden='true']) .vision-card, " +
+            ".home-layout:not([aria-hidden='true']) .menu-btn"
+        )
+    ).filter(card => {
+
+        const style = window.getComputedStyle(card);
+
+        return (
+            style.display !== "none" &&
+            style.visibility !== "hidden"
+        );
+    });
+}
+
+
+/* Highlight selected card */
+function updateMenuSelection() {
+
+    const cards = getVisibleMenuCards();
+
+    if (!cards.length) return;
+
+    if (
+        menuSelectedIndex < 0 ||
+        menuSelectedIndex >= cards.length
+    ) {
+        menuSelectedIndex = 0;
+    }
+
+    cards.forEach((card, index) => {
+
+        card.classList.toggle(
+            "remote-selected",
+            index === menuSelectedIndex
+        );
+
+    });
+}
+
+
+/* Move selection */
+function moveMenuSelection(direction) {
+
+    const cards = getVisibleMenuCards();
+
+    if (!cards.length) return;
+
+    const current = cards[menuSelectedIndex];
+
+    if (!current) {
+        menuSelectedIndex = 0;
+        updateMenuSelection();
         return;
     }
 
-    if (event.key === "ArrowUp" || event.key === "ArrowDown") {
-        event.preventDefault();
-        event.stopImmediatePropagation();
-        const forward = event.key === "ArrowUp";
-        const shuffleLandolt = currentTest === "landolt";
-        if (currentTest === "snellen") {
-            forward ? previousLevel() : nextLevel();
-        } else if (currentTest === "logmar") {
-            FEATURES.logmar.scroll(forward ? -250 : 250);
+
+    const currentRect =
+        current.getBoundingClientRect();
+
+
+    /*
+     * RIGHT / LEFT
+     */
+    if (
+        direction === "left" ||
+        direction === "right"
+    ) {
+
+        const sameRow = cards
+            .map((card, index) => ({
+                card,
+                index,
+                rect: card.getBoundingClientRect()
+            }))
+            .filter(item =>
+                Math.abs(
+                    item.rect.top -
+                    currentRect.top
+                ) < 20
+            )
+            .sort((a, b) =>
+                a.rect.left - b.rect.left
+            );
+
+
+        const position =
+            sameRow.findIndex(
+                item => item.index === menuSelectedIndex
+            );
+
+
+        if (direction === "right") {
+
+            if (
+                position >= 0 &&
+                position < sameRow.length - 1
+            ) {
+                menuSelectedIndex =
+                    sameRow[position + 1].index;
+            } else {
+                menuSelectedIndex =
+                    sameRow[0].index;
+            }
+
         } else {
-            forward ? nextLevel() : previousLevel();
-        }
 
-        // Every size change presents a new set of Landolt C directions.
-        if (shuffleLandolt && FEATURES.landolt) {
-            FEATURES.landolt.randomize();
+            if (position > 0) {
+                menuSelectedIndex =
+                    sameRow[position - 1].index;
+            } else {
+                menuSelectedIndex =
+                    sameRow[sameRow.length - 1].index;
+            }
         }
-        return;
     }
 
-    if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
-        event.preventDefault();
-        event.stopImmediatePropagation();
-        if (event.key === "ArrowRight") {
-            nextFeature();
-        } else {
-            previousFeature();
+
+    /*
+     * UP / DOWN
+     */
+    if (
+        direction === "up" ||
+        direction === "down"
+    ) {
+
+        const candidates = cards
+            .map((card, index) => ({
+                card,
+                index,
+                rect: card.getBoundingClientRect()
+            }))
+            .filter(item => {
+
+                const verticalDistance =
+                    item.rect.top -
+                    currentRect.top;
+
+                if (direction === "up") {
+                    return verticalDistance < -20;
+                }
+
+                return verticalDistance > 20;
+            });
+
+
+        if (candidates.length) {
+
+            /*
+             * Choose the card
+             * closest to the current X position.
+             */
+            candidates.sort((a, b) => {
+
+                const aX =
+                    Math.abs(
+                        a.rect.left -
+                        currentRect.left
+                    );
+
+                const bX =
+                    Math.abs(
+                        b.rect.left -
+                        currentRect.left
+                    );
+
+                const aY =
+                    Math.abs(
+                        a.rect.top -
+                        currentRect.top
+                    );
+
+                const bY =
+                    Math.abs(
+                        b.rect.top -
+                        currentRect.top
+                    );
+
+                return (
+                    aY - bY ||
+                    aX - bX
+                );
+            });
+
+
+            menuSelectedIndex =
+                candidates[0].index;
         }
-        return;
     }
 
-    // Remote OK/back and any non-arrow key always return to the home menu.
-    if (!event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey) {
-        event.preventDefault();
-        event.stopImmediatePropagation();
-        closeTest();
+
+    updateMenuSelection();
+}
+
+
+/* =====================================================
+                    KEYBOARD
+===================================================== */
+
+document.addEventListener(
+    "keydown",
+    function (event) {
+
+        const menu =
+            document.getElementById("menu");
+
+        const testScreen =
+            document.getElementById("testScreen");
+
+
+        /*
+         * ============================================
+         * MENU SCREEN
+         * ============================================
+         */
+
+        if (
+            menu &&
+            getComputedStyle(menu).display !== "none"
+        ) {
+
+            /*
+             * LEFT
+             */
+            if (event.key === "ArrowLeft") {
+
+                event.preventDefault();
+
+                moveMenuSelection("left");
+
+                return;
+            }
+
+
+            /*
+             * RIGHT
+             */
+            if (event.key === "ArrowRight") {
+
+                event.preventDefault();
+
+                moveMenuSelection("right");
+
+                return;
+            }
+
+
+            /*
+             * UP
+             */
+            if (event.key === "ArrowUp") {
+
+                event.preventDefault();
+
+                moveMenuSelection("up");
+
+                return;
+            }
+
+
+            /*
+             * DOWN
+             */
+            if (event.key === "ArrowDown") {
+
+                event.preventDefault();
+
+                moveMenuSelection("down");
+
+                return;
+            }
+
+
+            /*
+             * OK / ENTER
+             */
+            if (
+                event.key === "Enter" ||
+                event.key === " "
+            ) {
+
+                event.preventDefault();
+
+                const cards =
+                    getVisibleMenuCards();
+
+                const selected =
+                    cards[menuSelectedIndex];
+
+
+                if (selected) {
+                    selected.click();
+                }
+
+                return;
+            }
+
+            return;
+        }
+
+
+        /*
+         * ============================================
+         * TEST SCREEN
+         * ============================================
+         */
+
+        if (
+            testScreen &&
+            getComputedStyle(testScreen).display !== "none"
+        ) {
+
+            /*
+             * UP
+             */
+            if (event.key === "ArrowUp") {
+
+                event.preventDefault();
+
+                if (
+                    currentTest === "snellen"
+                ) {
+
+                    previousLevel();
+
+                } else if (
+                    currentTest === "logmar"
+                ) {
+
+                    FEATURES["logmar"].scroll(-250);
+
+                } else {
+
+                    nextLevel();
+                }
+
+                return;
+            }
+
+
+            /*
+             * DOWN
+             */
+            if (event.key === "ArrowDown") {
+
+                event.preventDefault();
+
+                if (
+                    currentTest === "snellen"
+                ) {
+
+                    nextLevel();
+
+                } else if (
+                    currentTest === "logmar"
+                ) {
+
+                    FEATURES["logmar"].scroll(250);
+
+                } else {
+
+                    previousLevel();
+                }
+
+                return;
+            }
+
+
+            /*
+             * LEFT
+             */
+           if (event.key === "ArrowLeft") {
+
+    event.preventDefault();
+
+    previousFeature();
+
+    return;
+}
+
+
+            /*
+             * RIGHT
+             */
+            if (event.key === "ArrowRight") {
+
+    event.preventDefault();
+
+    nextFeature();
+
+    return;
+}
+
+
+            /*
+             * ESC = BACK TO MENU
+             */
+            if (event.key === "Escape") {
+
+                event.preventDefault();
+
+                closeTest();
+
+                menuSelectedIndex = 0;
+
+                return;
+            }
+        }
+
     }
-});
+);
+
+
+/* =====================================================
+                INITIAL MENU SELECTION
+===================================================== */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        setTimeout(
+            updateMenuSelection,
+            100
+        );
+
+    }
+);
+
 
 
 /* =====================================================

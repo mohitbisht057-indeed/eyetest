@@ -1,86 +1,317 @@
 /* PEDIATRIC */
+
 const pediatricImages = [
-    "icons/Pasted image.png",
-    "icons/Pasted image (2).png",
-    "icons/Pasted image (3).png",
-    "icons/Pasted image (4).png",
-    "icons/Pasted image (5).png",
-    "icons/Pasted image (6).png",
-    "icons/Pasted image (7).png",
-    "icons/Pasted image (8).png",
-    "icons/Pasted image (9).png"
+    "icons/image-1.png",
+    "icons/image-2.png",
+    "icons/image-3.png",
+    "icons/image-4.png",
+    "icons/image-5.png",
+    "icons/image6.png",
+    
 ];
 
-let pediatricRowIndex = 0;
+
+/* ADD YOUR ALLEN PRESCHOOL IMAGES HERE */
+
+const allenPreschoolImages = [
+    "icons/pediatric.png",
+    "icons/Pastes image(1).png",
+    "icons/Pasted image(2).png",
+    "icons/Pasted image (9).png",
+    "icons/Pasted image (8).png",
+    "icons/Pasted image (7).png",
+    "icons/Pasted image (6).png",
+    "icons/Pasted image (5).png",
+    "icons/Pasted image (4).png"
+
+];
+
+
+let pediatricMode = null;
+let pediatricImageIndex = 0;
+
+
+/* ================= PEDIATRIC ================= */
 
 FEATURES["pediatric"] = {
+
     render(area, size) {
 
-        let currentImages = [];
+        /* ================= MENU / 2 CARDS ================= */
 
-        if (currentLevel === 0) {
-            currentImages.push(pediatricImages[pediatricRowIndex]);
-        } else {
-            const count = currentLevel + 1;
+        if (pediatricMode === null) {
 
-            for (let i = 0; i < count; i++) {
-                let randomIndex;
+            area.innerHTML = `
+                <div style="
+                    width:100%;
+                    height:100%;
+                    display:flex;
+                    align-items:center;
+                    justify-content:center;
+                    gap:30px;
+                    box-sizing:border-box;
+                ">
 
-                do {
-                    randomIndex = Math.floor(Math.random() * pediatricImages.length);
-                } while (i > 0 && pediatricImages[randomIndex] === currentImages[i - 1]);
+                    <!-- ALLEN PRESCHOOL -->
 
-                currentImages.push(pediatricImages[randomIndex]);
-            }
+                    <button
+                        type="button"
+                        onclick="selectPediatricMode('preschool')"
+                        style="
+                            width:300px;
+                            height:220px;
+                            border:none;
+                            border-radius:14px;
+                            background:var(--theme-color);
+                            color:white;
+                            cursor:pointer;
+                            display:flex;
+                            flex-direction:column;
+                            align-items:center;
+                            justify-content:center;
+                            font-family:Arial,sans-serif;
+                            font-weight:700;
+                            box-shadow:var(--shadow-md);
+                        "
+                    >
+                        <div style="
+                            font-size:60px;
+                            margin-bottom:20px;
+                        ">
+                            🐦
+                        </div>
+
+                        <div style="
+                            font-size:16px;
+                        ">
+                            ALLEN PRESCHOOL
+                        </div>
+                    </button>
+
+
+                    <!-- IMAGES -->
+
+                    <button
+                        type="button"
+                        onclick="selectPediatricMode('images')"
+                        style="
+                            width:300px;
+                            height:220px;
+                            border:none;
+                            border-radius:14px;
+                            background:var(--theme-color);
+                            color:white;
+                            cursor:pointer;
+                            display:flex;
+                            flex-direction:column;
+                            align-items:center;
+                            justify-content:center;
+                            font-family:Arial,sans-serif;
+                            font-weight:700;
+                            box-shadow:var(--shadow-md);
+                        "
+                    >
+                        <div style="
+                            font-size:60px;
+                            margin-bottom:20px;
+                        ">
+                            🦁
+                        </div>
+
+                        <div style="
+                            font-size:16px;
+                        ">
+                            IMAGES
+                        </div>
+                    </button>
+
+                </div>
+            `;
+
+            return;
         }
+
+
+        /* ================= IMAGE SET ================= */
+
+        const imageSet =
+            pediatricMode === "preschool"
+                ? allenPreschoolImages
+                : pediatricImages;
+
+
+        if (!imageSet.length) {
+
+            area.innerHTML = `
+                <div style="
+                    width:100%;
+                    height:100%;
+                    padding:30px;
+                    box-sizing:border-box;
+                    font:18px Arial,sans-serif;
+                    color:#777;
+                ">
+                    No images found.
+                </div>
+            `;
+
+            return;
+        }
+
+
+        /* Keep index valid */
+
+        if (pediatricImageIndex >= imageSet.length) {
+            pediatricImageIndex = 0;
+        }
+
+        if (pediatricImageIndex < 0) {
+            pediatricImageIndex = imageSet.length - 1;
+        }
+
+
+        const image = imageSet[pediatricImageIndex];
+
+
+        /* ================= IMAGE SCREEN ================= */
 
         area.innerHTML = `
             <div style="
-                display:flex;
-                justify-content:center;
-                align-items:center;
-                flex-wrap:wrap;
-                gap:${currentImages.length > 1 ? getOptotypeGap(size) : 0}px;
+                position:relative;
                 width:100%;
+                height:100%;
+                box-sizing:border-box;
+                padding:24px;
             ">
-                ${currentImages.map(src => `
+
+                <!-- BACK BUTTON -->
+
+                <button
+                    type="button"
+                    onclick="backToPediatricMenu()"
+                    style="
+                        position:absolute;
+                        top:70px;
+                        left:20px;
+                        z-index:10;
+                        border:none;
+                        border-radius:8px;
+                        background:var(--theme-strong);
+                        color:white;
+                        padding:10px 18px;
+                        font:700 14px Arial,sans-serif;
+                        cursor:pointer;
+                    "
+                >
+                    BACK
+                </button>
+
+
+                <!-- IMAGE — CENTER -->
+
+<div style="
+    width:100%;
+    height:100%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    box-sizing:border-box;
+">
+
                     <img
-                        src="${src}"
-                        alt=""
+                        src="${image}"
+                        alt="Pediatric chart"
                         style="
-                            width:${size}px;
-                            height:${size}px;
+                            max-width:75%;
+                            max-height:75%;
+                            width:auto;
+                            height:auto;
                             object-fit:contain;
+                            display:block;
                         "
                     >
-                `).join("")}
+
+                </div>
+
             </div>
         `;
     },
 
-    prev() {
 
-        if (currentLevel === 0) {
-            let newIndex;
+    /* ================= NEXT IMAGE ================= */
 
-            do {
-                newIndex = Math.floor(Math.random() * pediatricImages.length);
-            } while (newIndex === pediatricRowIndex);
+    next() {
 
-            pediatricRowIndex = newIndex;
-            renderFeature();
+        if (pediatricMode === null) {
             return;
         }
 
-        if (currentLevel > 0) {
-            currentLevel--;
-            localStorage.setItem("level_" + currentTest, currentLevel);
+        const imageSet =
+            pediatricMode === "preschool"
+                ? allenPreschoolImages
+                : pediatricImages;
 
-            if (currentLevel === 0) {
-                pediatricRowIndex = Math.floor(Math.random() * pediatricImages.length);
-            }
-
-            renderFeature();
+        if (!imageSet.length) {
+            return;
         }
+
+        pediatricImageIndex++;
+
+        if (pediatricImageIndex >= imageSet.length) {
+            pediatricImageIndex = 0;
+        }
+
+        renderFeature();
+    },
+
+
+    /* ================= PREVIOUS IMAGE ================= */
+
+    prev() {
+
+        if (pediatricMode === null) {
+            return;
+        }
+
+        const imageSet =
+            pediatricMode === "preschool"
+                ? allenPreschoolImages
+                : pediatricImages;
+
+        if (!imageSet.length) {
+            return;
+        }
+
+        pediatricImageIndex--;
+
+        if (pediatricImageIndex < 0) {
+            pediatricImageIndex = imageSet.length - 1;
+        }
+
+        renderFeature();
     }
 };
+
+
+/* ================= SELECT CARD ================= */
+
+function selectPediatricMode(mode) {
+
+    pediatricMode = mode;
+
+    pediatricImageIndex = 0;
+
+    renderFeature();
+}
+
+
+/* ================= BACK BUTTON ================= */
+
+function backToPediatricMenu() {
+
+    pediatricMode = null;
+
+    pediatricImageIndex = 0;
+
+    renderFeature();
+}

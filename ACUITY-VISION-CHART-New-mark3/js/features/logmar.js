@@ -4,7 +4,7 @@ let logmarPage = 0;
 let logmarOffset = 0;
 
 const LOGMAR_PAGES = [
-    ["H V Z D S", "N H J K A", "Q E R T Y", "R T Y U I", "O K M F R", "O L E R W", "W Q A S D", "D F U B C"],
+    ["A V Z D L", "N H J K A", "Q E R T Y", "R T Y U I", "O K M F R", "O L E R W", "W Q A S D", "D F U B C"],
     ["6 2 3 4 5", "6 2 3 1 3", "3 6 5 3 4", "8 7 9 2 4", "0 3 8 6 1", "2 7 4 9 5", "4 1 7 3 9", "8 5 2 6 1"],
     ["E E E E E", "E E E E E", "E E E E E", "E E E E E", "E E E E E", "E E E E E", "E E E E E", "E E E E E"],
     ["C C C C C", "C C C C C", "C C C C C", "C C C C C", "C C C C C", "C C C C C", "C C C C C", "C C C C C"]

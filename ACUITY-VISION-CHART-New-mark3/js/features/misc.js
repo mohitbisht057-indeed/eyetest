@@ -1,14 +1,17 @@
 /* MISC — IMAGE NAVIGATION */
 
 const MISC_IMAGES = [
-    "icons/Educational/misc1.png",
-    "icons/Educational/misc2.png",
-    "icons/Educational/misc3.png",
-    "icons/Educational/misc4.png",
-    "icons/Educational/misc5.png",
-    "icons/Educational/misc6.png"
+    "icons/misc1.png",
+   "icons/misc-2.png",
+   "icons/misc3.png",
+   "icons/misc4.png",
+   "icons/misc5.png",
+   "icons/misc6.png",
+   "icons/misc7.png",
+   "icons/misc8.png",
+   "icons/misc9.png",
+   "icons/misc10.png"
 ];
-
 let miscImageIndex = 0;
 
 FEATURES["misc"] = {
