@@ -25,12 +25,8 @@ FEATURES["tumbling"] = {
 
         area.innerHTML = `
             <div
+                class="acuity-optotype-row"
                 style="
-                    width:100%;
-                    height:100%;
-                    display:flex;
-                    align-items:center;
-                    justify-content:center;
                     gap:${count > 1 ? getOptotypeGap(size) : 0}px;
                     color:#000000;
                     opacity:1;
@@ -42,9 +38,8 @@ FEATURES["tumbling"] = {
                         { length: count },
                         (_, index) => `
                             <span
+                                class="acuity-optotype-cell"
                                 style="
-                                    display:grid;
-                                    place-items:center;
                                     width:${size}px;
                                     height:${size}px;
                                     color:#000000;

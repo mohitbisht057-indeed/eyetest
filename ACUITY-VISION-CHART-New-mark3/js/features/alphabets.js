@@ -34,17 +34,11 @@ FEATURES["alphabets"] = {
                     : alphabetSets[currentLevel];
 
         area.innerHTML = `
-            <div style="
-                display:flex;
-                justify-content:center;
-                align-items:center;
+            <div class="acuity-optotype-row" style="
                 gap:${letters.length > 1 ? getOptotypeGap(size) : 0}px;
-                width:100%;
             ">
                 ${letters.map(letter => `
-                    <span style="
-                        display:grid;
-                        place-items:center;
+                    <span class="acuity-optotype-cell" style="
                         width:${size}px;
                         height:${size}px;
                         font-size:${size}px;

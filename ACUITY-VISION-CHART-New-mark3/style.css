@@ -560,6 +560,30 @@ body.ui-modern .home-layout-modern {
 
 .landolt-c-svg {
     display: block;
+    box-sizing: border-box;
+}
+
+/* The Landolt SVG's width and height are the optotype's calibrated outer
+   square. Every text optotype uses this same square cell, so narrow glyphs
+   such as 1 and wide glyphs such as W cannot alter the chart layout. */
+.acuity-optotype-row {
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.acuity-optotype-cell,
+.acuity-optotype-box {
+    box-sizing: border-box;
+    display: grid !important;
+    place-items: center;
+    flex: 0 0 auto;
+    overflow: visible;
+    text-align: center;
 }
 
 .landolt-chart {
@@ -630,12 +654,6 @@ body.ui-modern .home-layout-modern {
     font-family: Arial, sans-serif;
     font-weight: 700;
     line-height: 1;
-}
-
-.acuity-optotype-box {
-    display: grid !important;
-    place-items: center;
-    flex: 0 0 auto;
 }
 
 .chart-optotypes .landolt-c-svg {
