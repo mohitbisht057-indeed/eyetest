@@ -347,6 +347,7 @@ function showScreen(screenId) {
         "themeScreen",
         "distanceScreen",
         "calibrationScreen",
+        "brandTextScreen",
         "testScreen"
     ].forEach(id => {
 

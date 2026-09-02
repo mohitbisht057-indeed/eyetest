@@ -226,39 +226,48 @@
 </head>
 <body>
 
-  <div class="bg"></div>
-  <div class="grid"></div>
-  <div class="exit-veil"></div>
+<div class="bg"></div>
+<div class="grid"></div>
+<div class="exit-veil"></div>
 
-  <div class="loader">
-    <div class="icon-wrap">
-      <div class="icon-ring outer"></div>
-      <div class="icon-ring spin"></div>
-      <img id="icon" src="icon.png" alt="Acuity Vision Chart icon"
-           onerror="this.style.display='none'">
+<div class="loader">
+<div class="icon-wrap">
+    <div class="icon-ring outer"></div>
+    <div class="icon-ring spin"></div>
+    <img id="icon" src="icon.png" alt="Acuity Vision Chart icon"
+        onerror="this.style.display='none'">
+</div>
+
+<div class="brand">
+        <!-- Added ID "loaderBrandText" -->
+        <div class="brand-text" id="loaderBrandText">Acuity&nbsp;Vision&nbsp;Chart</div>
+        <div class="divider"></div>
+        <div class="subtext">Preparing your session</div>
+        <div class="progress"><div class="progress-bar"></div></div>
+    </div>
     </div>
 
-    <div class="brand">
-      <div class="brand-text">Acuity&nbsp;Vision&nbsp;Chart</div>
-      <div class="divider"></div>
-      <div class="subtext">Preparing your session</div>
-      <div class="progress"><div class="progress-bar"></div></div>
-    </div>
-  </div>
-
-  <div class="fallback">
+    <div class="fallback">
     Taking a while? <a href="ACUITY-VISION-CHART-New-mark3/index.html">Open directly</a>
-  </div>
+    </div>
 
 <script>
-  const DEST = "ACUITY-VISION-CHART-New-mark3/index.html";
+    // 1. Check for custom brand text from settings
+    const savedBrandText = localStorage.getItem("customBrandText");
+    if (savedBrandText) {
+    // Replace spaces with &nbsp; to maintain your original CSS letter-spacing behavior
+    document.getElementById("loaderBrandText").innerHTML = savedBrandText.replace(/ /g, '&nbsp;');
+    }
 
-  function goToDestination(){
+    // 2. Existing routing logic
+    const DEST = "ACUITY-VISION-CHART-New-mark3/index.html";
+
+    function goToDestination(){
     document.body.classList.add('leaving');
     setTimeout(() => { window.location.href = DEST; }, 800);
-  }
+    }
 
-  setTimeout(goToDestination, 2800);
+    setTimeout(goToDestination, 2800);
 </script>
 
 </body>
