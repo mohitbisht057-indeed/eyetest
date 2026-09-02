@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Dice Dot Boxes</title>
+<style>
+  :root {
+    --box-bg: #f5f2e8;
+    --box-border: #d8d3c2;
+    --dot-color: #1c2340;
+    --ink: #1a1a1a;
+    --sub: #555;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    background: #fff;
+    color: var(--ink);
+    padding: 32px;
+    margin: 0;
+  }
+
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  h2 { font-size: 15px; font-weight: 600; color: var(--sub); margin: 0 0 20px; }
+
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+    background: #f0eee7;
+    padding: 20px;
+    border-radius: 6px;
+  }
+
+  .item { text-align: center; width: 96px; }
+
+  .box {
+    width: 96px;
+    height: 96px;
+    background: var(--box-bg);
+    border: 1px solid var(--box-border);
+    border-radius: 6px;
+    position: relative;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.02);
+  }
+
+  .dot {
+    position: absolute;
+    width: 15px;
+    height: 15px;
+    background: var(--dot-color);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .caption {
+    margin-top: 8px;
+    font-size: 12px;
+    line-height: 1.3;
+    color: var(--ink);
+  }
+
+  /* ---------- Dot position coordinates (percentages within the box) ---------- */
+
+  /* Count 0: Empty — no dots */
+
+  /* Count 1: Top-Left */
+  .d1-topleft .dot { top: 25%; left: 25%; }
+
+  /* Count 1: Bottom-Right */
+  .d1-botright .dot { top: 75%; left: 75%; }
+
+  /* Count 1: Center (classic) */
+  .d1-center .dot { top: 50%; left: 50%; }
+
+  /* Count 2: Diagonal NW-SE */
+  .d2-diag .dot:nth-child(1) { top: 25%; left: 25%; }
+  .d2-diag .dot:nth-child(2) { top: 75%; left: 75%; }
+
+  /* Count 2: Vertical */
+  .d2-vert .dot:nth-child(1) { top: 25%; left: 50%; }
+  .d2-vert .dot:nth-child(2) { top: 75%; left: 50%; }
+
+  /* Count 2: Classic anti-diagonal */
+  .d2-classic .dot:nth-child(1) { top: 25%; left: 75%; }
+  .d2-classic .dot:nth-child(2) { top: 75%; left: 25%; }
+
+  /* Count 3: Triangular */
+  .d3-tri .dot:nth-child(1) { top: 22%; left: 30%; }
+  .d3-tri .dot:nth-child(2) { top: 55%; left: 62%; }
+  .d3-tri .dot:nth-child(3) { top: 82%; left: 30%; }
+
+  /* Count 3: Linear diagonal (classic) */
+  .d3-diag .dot:nth-child(1) { top: 22%; left: 22%; }
+  .d3-diag .dot:nth-child(2) { top: 50%; left: 50%; }
+  .d3-diag .dot:nth-child(3) { top: 78%; left: 78%; }
+
+  /* Count 4: Skewed square */
+  .d4-skew .dot:nth-child(1) { top: 20%; left: 35%; }
+  .d4-skew .dot:nth-child(2) { top: 35%; left: 78%; }
+  .d4-skew .dot:nth-child(3) { top: 65%; left: 22%; }
+  .d4-skew .dot:nth-child(4) { top: 80%; left: 65%; }
+
+  /* Count 4: Diamond */
+  .d4-diamond .dot:nth-child(1) { top: 15%; left: 50%; }
+  .d4-diamond .dot:nth-child(2) { top: 50%; left: 18%; }
+  .d4-diamond .dot:nth-child(3) { top: 50%; left: 82%; }
+  .d4-diamond .dot:nth-child(4) { top: 85%; left: 50%; }
+
+  /* Count 4: Classic corners */
+  .d4-classic .dot:nth-child(1) { top: 25%; left: 25%; }
+  .d4-classic .dot:nth-child(2) { top: 25%; left: 75%; }
+  .d4-classic .dot:nth-child(3) { top: 75%; left: 25%; }
+  .d4-classic .dot:nth-child(4) { top: 75%; left: 75%; }
+
+  /* Count 5: Rotated cluster */
+  .d5-rotated .dot:nth-child(1) { top: 18%; left: 55%; }
+  .d5-rotated .dot:nth-child(2) { top: 35%; left: 25%; }
+  .d5-rotated .dot:nth-child(3) { top: 50%; left: 65%; }
+  .d5-rotated .dot:nth-child(4) { top: 70%; left: 35%; }
+  .d5-rotated .dot:nth-child(5) { top: 85%; left: 75%; }
+
+  /* Count 5: Standard cross (classic 5) */
+  .d5-cross .dot:nth-child(1) { top: 22%; left: 22%; }
+  .d5-cross .dot:nth-child(2) { top: 22%; left: 78%; }
+  .d5-cross .dot:nth-child(3) { top: 50%; left: 50%; }
+  .d5-cross .dot:nth-child(4) { top: 78%; left: 22%; }
+  .d5-cross .dot:nth-child(5) { top: 78%; left: 78%; }
+
+  /* Count 5: Alternate angle cluster */
+  .d5-alt .dot:nth-child(1) { top: 15%; left: 25%; }
+  .d5-alt .dot:nth-child(2) { top: 30%; left: 60%; }
+  .d5-alt .dot:nth-child(3) { top: 55%; left: 30%; }
+  .d5-alt .dot:nth-child(4) { top: 65%; left: 75%; }
+  .d5-alt .dot:nth-child(5) { top: 85%; left: 50%; }
+
+</style>
+</head>
+<body>
+
+  <h1>HTML / CSS Dice Orientation Visualizer</h1>
+  <h2>Sequence and variation for all counts</h2>
+
+  <div class="row">
+
+    <div class="item">
+      <div class="box d5-rotated">
+        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        <span class="dot"></span><span class="dot"></span>
+      </div>
+      <div class="caption">Count 5: Rotated Cluster</div>
+    </div>
+
+    <div class="item">
+      <div class="box"></div>
+      <div class="caption">Count 0: Empty</div>
+    </div>
+
+    <div class="item">
+      <div class="box d3-tri">
+        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+      </div>
+      <div class="caption">Count 3: Triangular</div>
+    </div>
+
+    <div class="item">
+      <div class="box d1-topleft">
+        <span class="dot"></span>
+      </div>
+      <div class="caption">Count 1: Top-Left Orientation</div>
+    </div>
+
+    <div class="item">
+      <div class="box d1-botright">
+        <span class="dot"></span>
+      </div>
+      <div class="caption">Count 1: Bottom-Right Orientation</div>
+    </div>
+
+    <div class="item">
+      <div class="box d2-diag">
+        <span class="dot"></span><span class="dot"></span>
+      </div>
+      <div class="caption">Count 2: Diagonal (NW-SE)</div>
+    </div>
+
+    <div class="item">
+      <div class="box d2-vert">
+        <span class="dot"></span><span class="dot"></span>
+      </div>
+      <div class="caption">Count 2: Vertical</div>
+    </div>
+
+    <div class="item">
+      <div class="box d3-diag">
+        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+      </div>
+      <div class="caption">Count 3: Linear Diagonal</div>
+    </div>
+
+    <div class="item">
+      <div class="box d4-skew">
+        <span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+      </div>
+      <div class="caption">Count 4: Skewed Square</div>
+    </div>
+
+    <div class="item">
+      <div class="box d4-diamond">
+        <span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+      </div>
+      <div class="caption">Count 4: Diamond</div>
+    </div>
+
+    <div class="item">
+      <div class="box d5-cross">
+        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        <span class="dot"></span><span class="dot"></span>
+      </div>
+      <div class="caption">Count 5: Standard Cross</div>
+    </div>
+
+    <div class="item">
+      <div class="box d5-alt">
+        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        <span class="dot"></span><span class="dot"></span>
+      </div>
+      <div class="caption">Count 5: Alternate Angle Cluster</div>
+    </div>
+
+  </div>
+
+  <p style="margin-top:20px; font-size:12px; color:var(--sub);">
+    Reusable box + dot pattern classes for 0–5 dots. Combine <code>.box</code> with any
+    <code>.dN-*</code> pattern class and the matching number of <code>&lt;span class="dot"&gt;</code> elements.
+  </p>
+
+</body>
+</html>

@@ -322,6 +322,13 @@ function openTest(test) {
             getTestName(test);
     }
 
+    if (
+        FEATURES[test] &&
+        typeof FEATURES[test].reset === "function"
+    ) {
+        FEATURES[test].reset();
+    }
+
     renderFeature();
 }
 
@@ -543,6 +550,7 @@ function renderFeature() {
 
         if (
             CORE_TESTS.includes(currentTest) ||
+            currentTest === "dots" ||
             LANGUAGE_NAMES[currentTest]
         ) {
             addAcuitySideLabels(area, level.label);
@@ -595,7 +603,6 @@ function updateLevelIndicator() {
         FEATURES.logmar.updateIndicator();
         return;
     }
-
 
     /*
      * Normal acuity indicator.
