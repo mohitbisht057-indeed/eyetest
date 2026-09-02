@@ -12,7 +12,14 @@ FEATURES["dots"] = {
         { className: "d4-diamond", dots: 4 },
         { className: "d5-cross", dots: 5 },
         { className: "d5-alt", dots: 5 }
-    ],
+  ],
+  shuffle() {
+      for (let i = this.boxes.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [this.boxes[i], this.boxes[j]] =
+              [this.boxes[j], this.boxes[i]];
+      }
+  },
 
     render(area, size) {
         const count =

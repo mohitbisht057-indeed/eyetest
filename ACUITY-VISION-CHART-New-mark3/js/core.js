@@ -1202,30 +1202,66 @@ document.addEventListener(
             }
 
 
-            /*
-             * UP
-             */
-            if (event.key === "ArrowUp") {
-
-                event.preventDefault();
-
-                moveMenuSelection("up");
-
-                return;
-            }
-
 
             /*
-             * DOWN
-             */
-            if (event.key === "ArrowDown") {
+            * UP
+            */
+          if (event.key === "ArrowUp") {
 
-                event.preventDefault();
+              event.preventDefault();
 
-                moveMenuSelection("down");
+              if (currentTest === "snellen") {
 
-                return;
-            }
+                  previousLevel();
+
+              } else if (currentTest === "logmar") {
+
+                  FEATURES["logmar"].scroll(-250);
+
+              } else if (currentTest === "dots") {
+
+                  if (FEATURES["dots"] && typeof FEATURES["dots"].shuffle === "function") {
+                      FEATURES["dots"].shuffle();
+                  }
+                  renderFeature();
+
+              } else {
+
+                  nextLevel();
+              }
+
+              return;
+          }
+
+          /*
+            * DOWN
+            */
+          if (event.key === "ArrowDown") {
+
+              event.preventDefault();
+
+              if (currentTest === "snellen") {
+
+                  nextLevel();
+
+              } else if (currentTest === "logmar") {
+
+                  FEATURES["logmar"].scroll(250);
+
+              } else if (currentTest === "dots") {
+
+                  if (FEATURES["dots"] && typeof FEATURES["dots"].shuffle === "function") {
+                      FEATURES["dots"].shuffle();
+                  }
+                  renderFeature();
+
+              } else {
+
+                  previousLevel();
+              }
+
+              return;
+          }
 
 
             /*
