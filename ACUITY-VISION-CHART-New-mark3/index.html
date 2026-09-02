@@ -26,7 +26,7 @@
 <header class="home-header">
     <div>
         <div class="home-kicker">Screening Workspace</div>
-        <div class="home-title">Acuity Vision Chart</div>
+        <div class="home-title" id="homeTitleModern">Acuity Vision Chart</div>
     </div>
 </header>
 
@@ -173,7 +173,7 @@
                 </svg>
             </div>
 
-            <div class="brand-title">ACUITY VISION CHART</div>
+            <div class="brand-title" id="brandTitleDevice">ACUITY VISION CHART</div>
         </div>
 
     </header>
@@ -345,9 +345,14 @@
     <div class="setting-card-name">LANGUAGE</div>
 </button>
 
-            <button class="setting-card" onclick="openThemeSettings()">
+             <button class="setting-card" onclick="openThemeSettings()">
                 <div class="setting-icon">◐</div>
                 <div class="setting-card-name">THEME</div>
+            </button>
+
+            <button class="setting-card" onclick="openBrandTextSettings()">
+                <div class="setting-icon">A</div>
+                <div class="setting-card-name">LOADING TEXT</div>
             </button>
 
         </div>
@@ -515,7 +520,27 @@
 
 </div>
 
+<!-- BRAND TEXT SETTINGS -->
 
+<div id="brandTextScreen">
+
+    <div class="language-header">
+        <span>LOADING TEXT</span>
+    </div>
+
+    <div class="theme-content" style="padding: 20px;">
+        <label style="display:block; margin-bottom: 8px; font-size: 1.4em; font-weight: 500;">Clinic Name / Brand Text:</label>
+        <input type="text" id="brandTextInput" placeholder="Acuity Vision Chart" style="padding: 12px 16px; width: 100%; max-width: 350px; border: 1px solid var(--theme-border); border-radius: 8px; background: var(--theme-box-bg); color: var(--theme-box-text); font-size: 1.1em;" onkeydown="if(event.key==='Enter')saveBrandText()">
+    </div>
+
+    <button class="language-done" onclick="saveBrandText()">
+        SAVE
+    </button>
+    <button class="language-done" onclick="closeBrandTextSettings()">
+        CANCEL
+    </button>
+
+</div>
 
 <!-- =====================================================
                     TEST SCREEN

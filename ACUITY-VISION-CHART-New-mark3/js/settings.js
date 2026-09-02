@@ -33,6 +33,46 @@ function getDisplayCalibrationKey() {
     ].join("x");
 }
 
+/* ================= BRAND TEXT ================= */
+
+function applyBrandText(text) {
+    const defaultText = "Acuity Vision Chart";
+    const value = text || defaultText;
+
+    const modern = document.getElementById("homeTitleModern");
+    const device = document.getElementById("brandTitleDevice");
+
+    if (modern) modern.textContent = value;
+    if (device) device.textContent = value.toUpperCase();
+}
+
+function openBrandTextSettings() {
+    const input = document.getElementById("brandTextInput");
+    if (input) {
+        input.value = localStorage.getItem("customBrandText") || "Acuity Vision Chart";
+    }
+    showScreen("brandTextScreen");
+}
+
+function closeBrandTextSettings() {
+    showScreen("settingsPanel");
+}
+
+function saveBrandText() {
+    const input = document.getElementById("brandTextInput");
+
+    if (input && input.value.trim() !== "") {
+        localStorage.setItem("customBrandText", input.value.trim());
+        applyBrandText(input.value.trim());
+    } else {
+        localStorage.removeItem("customBrandText");
+        applyBrandText("");
+    }
+
+    closeBrandTextSettings();
+}
+
+
 function savePanelDpiForCurrentDisplay() {
     let savedByDisplay = {};
 
@@ -789,6 +829,13 @@ function saveCalibration() {
 }
 
 function loadSavedSettings() {
+    const savedBrandText = localStorage.getItem("customBrandText");
+    const brandTextInput = document.getElementById("brandTextInput");
+    if (brandTextInput && savedBrandText) {
+        brandTextInput.value = savedBrandText;
+    }
+    applyBrandText(savedBrandText);
+
     const savedCalibrationOffset = localStorage.getItem("calibrationOffset");
 
     if (savedCalibrationOffset) {

@@ -1,12 +1,274 @@
 <!doctype html>
 <html lang="en">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta http-equiv="refresh" content="0; url=ACUITY-VISION-CHART-New-mark3/index.html">
-    <title>Acuity Vision Chart</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Acuity Vision Chart</title>
+<style>
+  :root{
+    --bg-1: #05070c;
+    --bg-2: #0b1220;
+    --accent: #d4af7a;      /* warm platinum-gold, reads as "clinical premium" */
+    --accent-2: #8fb3c9;    /* cool clinical blue-grey */
+    --text: #f4f6f9;
+    --text-dim: #6b7686;
+    --safe: 6vh;            /* TV overscan safe area */
+  }
+
+  *{ margin:0; padding:0; box-sizing:border-box; }
+
+  html, body{
+    height:100%;
+    width:100%;
+    background: var(--bg-1);
+    overflow:hidden;
+  }
+
+  body{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family: 'Segoe UI', Roboto, system-ui, -apple-system, sans-serif;
+    position:relative;
+    padding: var(--safe) 8vw;
+  }
+
+  /* Static, subtle vignette background — no heavy motion blur (TV GPUs are weak) */
+  .bg{
+    position:fixed;
+    inset:0;
+    background:
+      radial-gradient(ellipse at 50% 40%, rgba(212,175,122,0.06), transparent 55%),
+      radial-gradient(ellipse at 50% 100%, rgba(143,179,201,0.05), transparent 60%),
+      linear-gradient(180deg, var(--bg-2) 0%, var(--bg-1) 100%);
+    z-index:0;
+  }
+
+  /* Fine vertical line texture, evokes an optometrist's precision chart */
+  .grid{
+    position:fixed;
+    inset:0;
+    z-index:0;
+    opacity:0.05;
+    background-image:
+      linear-gradient(90deg, var(--text) 1px, transparent 1px);
+    background-size: 4vw 100%;
+  }
+
+  .loader{
+    position:relative;
+    z-index:1;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:5vh;
+    opacity:0;
+    animation: rise 1.2s cubic-bezier(.22,1,.36,1) forwards 0.2s;
+  }
+
+  @keyframes rise{
+    0%   { opacity:0; transform: translateY(2vh); }
+    100% { opacity:1; transform: translateY(0); }
+  }
+
+  /* Icon: calm, single slow-rotating ring, no glow blur (cheap on TV GPU) */
+  .icon-wrap{
+    position:relative;
+    width:14vh;
+    height:14vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+
+  .icon-ring{
+    position:absolute;
+    inset:0;
+    border-radius:50%;
+    border: 1px solid rgba(212,175,122,0.25);
+  }
+
+  .icon-ring.spin{
+    border-top-color: var(--accent);
+    border-right-color: transparent;
+    border-bottom-color: transparent;
+    border-left-color: transparent;
+    animation: spin 2.4s linear infinite;
+  }
+
+  .icon-ring.outer{
+    inset:-1.6vh;
+    border-color: rgba(143,179,201,0.12);
+  }
+
+  @keyframes spin{
+    to{ transform: rotate(360deg); }
+  }
+
+  #icon{
+    width:8vh;
+    height:8vh;
+    object-fit:contain;
+    border-radius:14%;
+    position:relative;
+    z-index:2;
+    background: rgba(255,255,255,0.02);
+  }
+
+  .brand{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:2.2vh;
+  }
+
+  .brand-text{
+    font-size:5vh;
+    font-weight:300;
+    letter-spacing:0.35em;
+    color:var(--text);
+    text-transform:uppercase;
+    text-align:center;
+    opacity:0;
+    animation: textIn 1s ease forwards 0.6s;
+  }
+
+  @keyframes textIn{
+    0%   { opacity:0; letter-spacing:0.55em; }
+    100% { opacity:1; letter-spacing:0.35em; }
+  }
+
+  .divider{
+    width:3.2vh;
+    height:1px;
+    background: var(--accent);
+    opacity:0;
+    animation: fadeIn 0.8s ease forwards 1.3s;
+  }
+
+  .subtext{
+    font-size:1.9vh;
+    letter-spacing:0.3em;
+    text-transform:uppercase;
+    color: var(--text-dim);
+    opacity:0;
+    animation: fadeIn 0.8s ease forwards 1.5s;
+  }
+
+  @keyframes fadeIn{
+    to{ opacity:1; }
+  }
+
+  .progress{
+    width:26vh;
+    height:2px;
+    border-radius:2px;
+    background: rgba(255,255,255,0.08);
+    overflow:hidden;
+    margin-top:0.6vh;
+  }
+
+  .progress-bar{
+    height:100%;
+    width:0%;
+    border-radius:2px;
+    background: linear-gradient(90deg, var(--accent-2), var(--accent));
+    animation: load 1.8s ease forwards 0.9s;
+  }
+
+  @keyframes load{
+    to{ width:100%; }
+  }
+
+  /* Exit transition — simple, elegant fade, no blur filter (expensive on TV) */
+  .exit-veil{
+    position:fixed;
+    inset:0;
+    background: var(--bg-1);
+    z-index:10;
+    opacity:0;
+    pointer-events:none;
+  }
+
+  body.leaving .exit-veil{
+    animation: veilIn 0.8s ease forwards;
+  }
+
+  body.leaving .loader{
+    animation: sink 0.7s ease forwards;
+  }
+
+  @keyframes sink{
+    to{ opacity:0; transform: translateY(-1.5vh); }
+  }
+
+  @keyframes veilIn{
+    to{ opacity:1; }
+  }
+
+  .fallback{
+    position:fixed;
+    bottom: var(--safe);
+    left:0; right:0;
+    z-index:1;
+    text-align:center;
+    font-size:1.6vh;
+    letter-spacing:0.05em;
+    color: var(--text-dim);
+    opacity:0;
+    animation: fadeIn 0.8s ease forwards 2.6s;
+  }
+  .fallback a{
+    color: var(--accent-2);
+    text-decoration:none;
+  }
+</style>
 </head>
 <body>
-    <p><a href="ACUITY-VISION-CHART-New-mark3/index.html">Open Acuity Vision Chart</a></p>
+
+<div class="bg"></div>
+<div class="grid"></div>
+<div class="exit-veil"></div>
+
+<div class="loader">
+<div class="icon-wrap">
+    <div class="icon-ring outer"></div>
+    <div class="icon-ring spin"></div>
+    <img id="icon" src="icon.png" alt="Acuity Vision Chart icon"
+        onerror="this.style.display='none'">
+</div>
+
+<div class="brand">
+        <!-- Added ID "loaderBrandText" -->
+        <div class="brand-text" id="loaderBrandText">Acuity&nbsp;Vision&nbsp;Chart</div>
+        <div class="divider"></div>
+        <div class="subtext">Preparing your session</div>
+        <div class="progress"><div class="progress-bar"></div></div>
+    </div>
+    </div>
+
+    <div class="fallback">
+    Taking a while? <a href="ACUITY-VISION-CHART-New-mark3/index.html">Open directly</a>
+    </div>
+
+<script>
+    // 1. Check for custom brand text from settings
+    const savedBrandText = localStorage.getItem("customBrandText");
+    if (savedBrandText) {
+    // Replace spaces with &nbsp; to maintain your original CSS letter-spacing behavior
+    document.getElementById("loaderBrandText").innerHTML = savedBrandText.replace(/ /g, '&nbsp;');
+    }
+
+    // 2. Existing routing logic
+    const DEST = "ACUITY-VISION-CHART-New-mark3/index.html";
+
+    function goToDestination(){
+    document.body.classList.add('leaving');
+    setTimeout(() => { window.location.href = DEST; }, 800);
+    }
+
+    setTimeout(goToDestination, 2800);
+</script>
+
 </body>
 </html>
