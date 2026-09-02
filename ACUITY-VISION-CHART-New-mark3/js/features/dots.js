@@ -2,7 +2,6 @@
 FEATURES["dots"] = {
     boxes: [
         { className: "d5-rotated", dots: 5 },
-        { className: "", dots: 0 },
         { className: "d3-tri", dots: 3 },
         { className: "d1-topleft", dots: 1 },
         { className: "d1-botright", dots: 1 },
