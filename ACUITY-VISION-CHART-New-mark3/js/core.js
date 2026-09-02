@@ -322,6 +322,13 @@ function openTest(test) {
             getTestName(test);
     }
 
+    if (
+        FEATURES[test] &&
+        typeof FEATURES[test].reset === "function"
+    ) {
+        FEATURES[test].reset();
+    }
+
     renderFeature();
 }
 
@@ -543,6 +550,7 @@ function renderFeature() {
 
         if (
             CORE_TESTS.includes(currentTest) ||
+            currentTest === "dots" ||
             LANGUAGE_NAMES[currentTest]
         ) {
             addAcuitySideLabels(area, level.label);
@@ -596,7 +604,6 @@ function updateLevelIndicator() {
         return;
     }
 
-
     /*
      * Normal acuity indicator.
      */
@@ -626,6 +633,42 @@ function nextLevel() {
         }
 
         return;
+    }
+
+
+    /*
+     * Landolt C / Tumbling E:
+     *
+     * Increase the acuity level AND generate a completely
+     * new random orientation set.
+     */
+    if (
+        currentTest === "landolt" ||
+        currentTest === "tumbling"
+    ) {
+
+        if (
+            FEATURES[currentTest] &&
+            typeof FEATURES[currentTest].randomize === "function"
+        ) {
+
+            if (
+                currentLevel <
+                ACUITY_LEVELS.length - 1
+            ) {
+
+                currentLevel++;
+
+                localStorage.setItem(
+                    "level_" + currentTest,
+                    currentLevel
+                );
+
+                FEATURES[currentTest].randomize();
+            }
+
+            return;
+        }
     }
 
 
@@ -677,7 +720,6 @@ function nextLevel() {
 /* =====================================================
                     PREVIOUS LEVEL / PLATE
 ===================================================== */
-
 function previousLevel() {
 
     /*
@@ -694,6 +736,39 @@ function previousLevel() {
         }
 
         return;
+    }
+
+
+    /*
+     * Landolt C / Tumbling E:
+     *
+     * Decrease the acuity level AND generate a completely
+     * new random orientation set.
+     */
+    if (
+        currentTest === "landolt" ||
+        currentTest === "tumbling"
+    ) {
+
+        if (
+            FEATURES[currentTest] &&
+            typeof FEATURES[currentTest].randomize === "function"
+        ) {
+
+            if (currentLevel > 0) {
+
+                currentLevel--;
+
+                localStorage.setItem(
+                    "level_" + currentTest,
+                    currentLevel
+                );
+
+                FEATURES[currentTest].randomize();
+            }
+
+            return;
+        }
     }
 
 
@@ -1349,6 +1424,12 @@ if (event.key === "ArrowRight") {
 
         snellenOffset = 0;
         renderFeature();
+    } else if (
+        currentTest === "redgreen" &&
+        FEATURES["redgreen"] &&
+        typeof FEATURES["redgreen"].cycleMode === "function"
+    ) {
+        FEATURES["redgreen"].cycleMode();
     } else {
         nextFeature();
     }
