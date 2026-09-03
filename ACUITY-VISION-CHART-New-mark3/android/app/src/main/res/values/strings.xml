@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Acuity Vision Chart</string>
+    <string name="title_activity_main">Acuity Vision Chart</string>
+    <string name="package_name">com.acuityvisionchart.app</string>
+    <string name="custom_url_scheme">com.acuityvisionchart.app</string>
+</resources>
