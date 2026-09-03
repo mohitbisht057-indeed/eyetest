@@ -27,7 +27,7 @@ const educationalImages = {
 
     "ANATOMY": [
         "icons/ishihara/Educational/anatomy-1.png",
-        "icons/ishihara/Educational/anatomy-2.png",
+         "icons/ishihara/Educational/anatomy-2.png",
         "icons/ishihara/Educational/anatomy-3.png",
         "icons/ishihara/Educational/anatomy-4.png",
         "icons/ishihara/Educational/anatomy-5.png",
@@ -191,7 +191,7 @@ function renderEducationalTopics(area) {
                         height:165px;
                         border:none;
                         border-radius:18px;
-                        background:#8f2035;
+                        background:var(--theme-color);
                         color:#fff;
                         font-size:22px;
                         font-weight:bold;

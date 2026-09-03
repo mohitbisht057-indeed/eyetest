@@ -3,6 +3,63 @@
 let tumblingRowIndex = 0;
 let tumblingSixFourIndex = 0;
 
+
+/* ================= TUMBLING E SVG ================= */
+
+function createTumblingESvg(size, rotation) {
+
+    return `
+        <svg
+            viewBox="0 0 100 100"
+            style="
+                width:${size}px;
+                height:${size}px;
+                display:block;
+                flex:none;
+                transform:rotate(${rotation}deg);
+                transform-origin:center;
+            "
+        >
+
+            <rect
+                x="0"
+                y="0"
+                width="100"
+                height="20"
+                fill="#000000"
+            />
+
+            <rect
+                x="0"
+                y="40"
+                width="100"
+                height="20"
+                fill="#000000"
+            />
+
+            <rect
+                x="0"
+                y="80"
+                width="100"
+                height="20"
+                fill="#000000"
+            />
+
+            <rect
+                x="0"
+                y="0"
+                width="20"
+                height="100"
+                fill="#000000"
+            />
+
+        </svg>
+    `;
+}
+
+
+/* TUMBLING E — solid black, centered */
+
 FEATURES["tumbling"] = {
 
     directions: [],
@@ -16,12 +73,21 @@ FEATURES["tumbling"] = {
                 ? 8
                 : currentLevel + 1;
 
-        const directionOffset =
-            currentLevel === 0
-                ? tumblingRowIndex
-                : currentLevel === 7
-                    ? tumblingSixFourIndex
-                    : 0;
+
+        /* Generate directions if count changed */
+        if (this.directions.length !== count) {
+
+            this.directions = Array.from(
+                { length: count },
+                () =>
+                    rotations[
+                        Math.floor(
+                            Math.random() * rotations.length
+                        )
+                    ]
+            );
+        }
+
 
         area.innerHTML = `
             <div
@@ -33,45 +99,41 @@ FEATURES["tumbling"] = {
                 "
             >
 
-                ${
-                    Array.from(
-                        { length: count },
-                        (_, index) => `
-                            <span
-                                class="acuity-optotype-cell"
-                                style="
-                                    width:${size}px;
-                                    height:${size}px;
-                                    color:#000000;
-                                    font-family:Arial,sans-serif;
-                                    font-size:${size}px;
-                                    font-weight:700;
-                                    line-height:1;
-                                    transform:rotate(${
-                                        this.directions[index] ?? rotations[
-                                            (index + directionOffset) % rotations.length
-                                        ]
-                                    }deg);
-                                    opacity:1;
-                                "
-                            >
-                                E
-                            </span>
-                        `
-                    ).join("")
-                }
+${
+    Array.from(
+        { length: count },
+        (_, index) =>
+            createTumblingESvg(
+                size,
+                this.directions[index]
+            )
+    ).join("")
+}
 
             </div>
         `;
     },
 
+
     randomize() {
-        const count = currentLevel === 7 ? 8 : currentLevel + 1;
+
+        const count =
+            currentLevel === 7
+                ? 8
+                : currentLevel + 1;
+
         const rotations = [0, 90, 180, 270];
+
         this.directions = Array.from(
             { length: count },
-            () => rotations[Math.floor(Math.random() * rotations.length)]
+            () =>
+                rotations[
+                    Math.floor(
+                        Math.random() * rotations.length
+                    )
+                ]
         );
+
         renderFeature();
     },
 
@@ -93,6 +155,26 @@ FEATURES["tumbling"] = {
             );
         }
 
+
+        /* NEW RANDOM DIRECTIONS */
+        const count =
+            currentLevel === 7
+                ? 8
+                : currentLevel + 1;
+
+        const rotations = [0, 90, 180, 270];
+
+        this.directions = Array.from(
+            { length: count },
+            () =>
+                rotations[
+                    Math.floor(
+                        Math.random() * rotations.length
+                    )
+                ]
+        );
+
+
         renderFeature();
     },
 
@@ -113,6 +195,26 @@ FEATURES["tumbling"] = {
                 currentLevel
             );
         }
+
+
+        /* NEW RANDOM DIRECTIONS */
+        const count =
+            currentLevel === 7
+                ? 8
+                : currentLevel + 1;
+
+        const rotations = [0, 90, 180, 270];
+
+        this.directions = Array.from(
+            { length: count },
+            () =>
+                rotations[
+                    Math.floor(
+                        Math.random() * rotations.length
+                    )
+                ]
+        );
+
 
         renderFeature();
     }

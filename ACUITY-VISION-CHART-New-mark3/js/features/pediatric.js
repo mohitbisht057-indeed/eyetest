@@ -1,4 +1,4 @@
-/* PEDIATRIC */
+/* ================= PEDIATRIC ================= */
 
 const pediatricImages = [
     "icons/image-1.png",
@@ -6,12 +6,8 @@ const pediatricImages = [
     "icons/image-3.png",
     "icons/image-4.png",
     "icons/image-5.png",
-    "icons/image6.png",
-    
+    "icons/image6.png"
 ];
-
-
-/* ADD YOUR ALLEN PRESCHOOL IMAGES HERE */
 
 const allenPreschoolImages = [
     "icons/pediatric.png",
@@ -23,23 +19,22 @@ const allenPreschoolImages = [
     "icons/Pasted image (6).png",
     "icons/Pasted image (5).png",
     "icons/Pasted image (4).png"
-
 ];
 
-
-let pediatricMode = null;
+let pediatricMode = "cards";
+let pediatricSelectedIndex = 0;
 let pediatricImageIndex = 0;
 
 
-/* ================= PEDIATRIC ================= */
+/* ================= FEATURE ================= */
 
 FEATURES["pediatric"] = {
 
     render(area, size) {
 
-        /* ================= MENU / 2 CARDS ================= */
+        /* ================= CARD SCREEN ================= */
 
-        if (pediatricMode === null) {
+        if (pediatricMode === "cards") {
 
             area.innerHTML = `
                 <div style="
@@ -49,7 +44,6 @@ FEATURES["pediatric"] = {
                     align-items:center;
                     justify-content:center;
                     gap:30px;
-                    box-sizing:border-box;
                 ">
 
                     <!-- ALLEN PRESCHOOL -->
@@ -72,6 +66,9 @@ FEATURES["pediatric"] = {
                             font-family:Arial,sans-serif;
                             font-weight:700;
                             box-shadow:var(--shadow-md);
+                            outline:${pediatricSelectedIndex === 0
+                                ? "4px solid #ffd21a"
+                                : "none"};
                         "
                     >
                         <div style="
@@ -81,9 +78,7 @@ FEATURES["pediatric"] = {
                             🐦
                         </div>
 
-                        <div style="
-                            font-size:16px;
-                        ">
+                        <div style="font-size:16px;">
                             ALLEN PRESCHOOL
                         </div>
                     </button>
@@ -109,6 +104,9 @@ FEATURES["pediatric"] = {
                             font-family:Arial,sans-serif;
                             font-weight:700;
                             box-shadow:var(--shadow-md);
+                            outline:${pediatricSelectedIndex === 1
+                                ? "4px solid #ffd21a"
+                                : "none"};
                         "
                     >
                         <div style="
@@ -118,9 +116,7 @@ FEATURES["pediatric"] = {
                             🦁
                         </div>
 
-                        <div style="
-                            font-size:16px;
-                        ">
+                        <div style="font-size:16px;">
                             IMAGES
                         </div>
                     </button>
@@ -132,7 +128,7 @@ FEATURES["pediatric"] = {
         }
 
 
-        /* ================= IMAGE SET ================= */
+        /* ================= IMAGE SCREEN ================= */
 
         const imageSet =
             pediatricMode === "preschool"
@@ -141,58 +137,38 @@ FEATURES["pediatric"] = {
 
 
         if (!imageSet.length) {
-
-            area.innerHTML = `
-                <div style="
-                    width:100%;
-                    height:100%;
-                    padding:30px;
-                    box-sizing:border-box;
-                    font:18px Arial,sans-serif;
-                    color:#777;
-                ">
-                    No images found.
-                </div>
-            `;
-
+            area.innerHTML = "";
             return;
         }
 
 
-        /* Keep index valid */
+        pediatricImageIndex =
+            Math.max(
+                0,
+                Math.min(
+                    pediatricImageIndex,
+                    imageSet.length - 1
+                )
+            );
 
-        if (pediatricImageIndex >= imageSet.length) {
-            pediatricImageIndex = 0;
-        }
-
-        if (pediatricImageIndex < 0) {
-            pediatricImageIndex = imageSet.length - 1;
-        }
-
-
-        const image = imageSet[pediatricImageIndex];
-
-
-        /* ================= IMAGE SCREEN ================= */
 
         area.innerHTML = `
             <div style="
                 position:relative;
                 width:100%;
                 height:100%;
-                box-sizing:border-box;
-                padding:24px;
+                display:flex;
+                align-items:center;
+                justify-content:center;
             ">
-
-                <!-- BACK BUTTON -->
 
                 <button
                     type="button"
-                    onclick="backToPediatricMenu()"
+                    onclick="backToPediatricCards()"
                     style="
                         position:absolute;
-                        top:70px;
-                        left:20px;
+                        top:15px;
+                        left:15px;
                         z-index:10;
                         border:none;
                         border-radius:8px;
@@ -206,112 +182,136 @@ FEATURES["pediatric"] = {
                     BACK
                 </button>
 
-
-                <!-- IMAGE — CENTER -->
-
-<div style="
-    width:100%;
-    height:100%;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    box-sizing:border-box;
-">
-
-                    <img
-                        src="${image}"
-                        alt="Pediatric chart"
-                        style="
-                            max-width:75%;
-                            max-height:75%;
-                            width:auto;
-                            height:auto;
-                            object-fit:contain;
-                            display:block;
-                        "
-                    >
-
-                </div>
+                <img
+                    src="${imageSet[pediatricImageIndex]}"
+                    alt="Pediatric image"
+                    style="
+                        max-width:80%;
+                        max-height:80%;
+                        width:auto;
+                        height:auto;
+                        object-fit:contain;
+                        display:block;
+                    "
+                >
 
             </div>
         `;
-    },
-
-
-    /* ================= NEXT IMAGE ================= */
-
-    next() {
-
-        if (pediatricMode === null) {
-            return;
-        }
-
-        const imageSet =
-            pediatricMode === "preschool"
-                ? allenPreschoolImages
-                : pediatricImages;
-
-        if (!imageSet.length) {
-            return;
-        }
-
-        pediatricImageIndex++;
-
-        if (pediatricImageIndex >= imageSet.length) {
-            pediatricImageIndex = 0;
-        }
-
-        renderFeature();
-    },
-
-
-    /* ================= PREVIOUS IMAGE ================= */
-
-    prev() {
-
-        if (pediatricMode === null) {
-            return;
-        }
-
-        const imageSet =
-            pediatricMode === "preschool"
-                ? allenPreschoolImages
-                : pediatricImages;
-
-        if (!imageSet.length) {
-            return;
-        }
-
-        pediatricImageIndex--;
-
-        if (pediatricImageIndex < 0) {
-            pediatricImageIndex = imageSet.length - 1;
-        }
-
-        renderFeature();
     }
 };
 
 
-/* ================= SELECT CARD ================= */
+/* ================= CARD SELECTION ================= */
 
-function selectPediatricMode(mode) {
+window.movePediatricSelection = function(direction) {
+
+    if (pediatricMode !== "cards") return;
+
+    /*
+     * Only 2 cards:
+     * LEFT  = card 0
+     * RIGHT = card 1
+     */
+
+    if (direction === "left") {
+        pediatricSelectedIndex = 0;
+    }
+
+    if (direction === "right") {
+        pediatricSelectedIndex = 1;
+    }
+
+    /*
+     * UP / DOWN toggle between the 2 cards
+     */
+
+    if (direction === "up" || direction === "down") {
+        pediatricSelectedIndex =
+            pediatricSelectedIndex === 0 ? 1 : 0;
+    }
+
+    renderFeature();
+};
+
+
+/* ================= ENTER / OK ================= */
+
+window.activatePediatricSelection = function() {
+
+    if (pediatricMode !== "cards") return;
+
+    if (pediatricSelectedIndex === 0) {
+        selectPediatricMode("preschool");
+    } else {
+        selectPediatricMode("images");
+    }
+};
+
+
+/* ================= OPEN CARD ================= */
+
+window.selectPediatricMode = function(mode) {
 
     pediatricMode = mode;
-
     pediatricImageIndex = 0;
 
     renderFeature();
-}
+};
 
 
-/* ================= BACK BUTTON ================= */
+/* ================= NEXT IMAGE ================= */
 
-function backToPediatricMenu() {
+window.nextPediatricImage = function() {
 
-    pediatricMode = null;
+    if (pediatricMode === "cards") return;
 
+    const imageSet =
+        pediatricMode === "preschool"
+            ? allenPreschoolImages
+            : pediatricImages;
+
+    if (!imageSet.length) return;
+
+    pediatricImageIndex++;
+
+    if (pediatricImageIndex >= imageSet.length) {
+        pediatricImageIndex = 0;
+    }
+
+    renderFeature();
+};
+
+
+/* ================= PREVIOUS IMAGE ================= */
+
+window.previousPediatricImage = function() {
+
+    if (pediatricMode === "cards") return;
+
+    const imageSet =
+        pediatricMode === "preschool"
+            ? allenPreschoolImages
+            : pediatricImages;
+
+    if (!imageSet.length) return;
+
+    pediatricImageIndex--;
+
+    if (pediatricImageIndex < 0) {
+        pediatricImageIndex = imageSet.length - 1;
+    }
+
+    renderFeature();
+};
+
+
+/* ================= BACK TO CARDS ================= */
+
+window.backToPediatricCards = function() {
+
+    pediatricMode = "cards";
+    pediatricSelectedIndex = 0;
     pediatricImageIndex = 0;
 
     renderFeature();
-}
+};

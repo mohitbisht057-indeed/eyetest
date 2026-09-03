@@ -1,5 +1,48 @@
-/* ALPHABETS */
+/* =====================================================
+   ALPHABETS — CALIBRATED SVG LETTERS
+===================================================== */
+
+
+/* =====================================================
+   CREATE ALPHABET OPTOTYPE
+===================================================== */
+
+function createAlphabetSvg(letter, size) {
+
+    return `
+        <svg
+            viewBox="0 0 100 100"
+            width="${size}"
+            height="${size}"
+            style="
+                width:${size}px;
+                height:${size}px;
+                display:block;
+                flex:none;
+                overflow:visible;
+            "
+        >
+            <text
+                x="50"
+                y="50"
+                text-anchor="middle"
+                dominant-baseline="central"
+                font-family="Arial, Helvetica, sans-serif"
+                font-size="138"
+                font-weight="700"
+                fill="#000000"
+            >${letter}</text>
+        </svg>
+    `;
+}
+
+
+/* =====================================================
+   ALPHABETS
+===================================================== */
+
 FEATURES["alphabets"] = {
+
     render(area, size) {
 
         const alphabetSets = [
@@ -12,6 +55,7 @@ FEATURES["alphabets"] = {
             ["Z", "D", "S", "K", "R", "N", "H"],
             ["R", "Z", "K", "D", "H", "N", "S", "R"]
         ];
+
 
         const alphabetSixFourRows = [
             ["R", "Z", "K", "D", "H", "N", "S", "R"],
@@ -26,6 +70,18 @@ FEATURES["alphabets"] = {
             ["K", "N", "R", "D", "P", "S", "H", "Z"]
         ];
 
+
+        /* SAME SIZE AS LANDOLT C */
+
+        const level =
+            ACUITY_LEVELS[currentLevel] || { label: "6/60" };
+
+        const alphabetSize =
+            typeof calculateLandoltSize === "function"
+                ? calculateLandoltSize(level.label)
+                : size;
+
+
         const letters =
             currentLevel === 0
                 ? [alphabetLettersAt6_4[alphabetRowIndex]]
@@ -33,40 +89,60 @@ FEATURES["alphabets"] = {
                     ? alphabetSixFourRows[alphabetSixFourIndex]
                     : alphabetSets[currentLevel];
 
+
         area.innerHTML = `
-            <div class="acuity-optotype-row" style="
-                gap:${letters.length > 1 ? getOptotypeGap(size) : 0}px;
-            ">
-                ${letters.map(letter => `
-                    <span class="acuity-optotype-cell" style="
-                        width:${size}px;
-                        height:${size}px;
-                        font-size:${size}px;
-                        font-weight:bold;
-                        line-height:1;
-                        color:#000000;
-                    ">
-                        ${letter}
-                    </span>
-                `).join("")}
+            <div
+                class="acuity-optotype-row"
+                style="
+                    gap:${letters.length > 1
+                        ? getOptotypeGap(alphabetSize)
+                        : 0}px;
+                    align-items:center;
+                    justify-content:center;
+                "
+            >
+
+                ${
+                    letters
+                        .map(letter =>
+                            createAlphabetSvg(
+                                letter,
+                                alphabetSize
+                            )
+                        )
+                        .join("")
+                }
+
             </div>
         `;
     },
 
+
+    /* =================================================
+       NEXT
+    ================================================= */
+
     next() {
 
-        // 6/60 → 6/36
+        /* 6/60 → 6/36 */
+
         if (currentLevel === 0) {
 
             currentLevel = 1;
 
-            localStorage.setItem("level_" + currentTest, currentLevel);
+            localStorage.setItem(
+                "level_" + currentTest,
+                currentLevel
+            );
 
             renderFeature();
+
             return;
         }
 
-        // 6/4 → same size, new 8-letter row
+
+        /* 6/4 → new 8-letter row */
+
         if (currentLevel === 7) {
 
             alphabetSixFourIndex++;
@@ -76,44 +152,70 @@ FEATURES["alphabets"] = {
             }
 
             renderFeature();
+
             return;
         }
 
-        // Normal UP
-        if (currentLevel < ACUITY_LEVELS.length - 1) {
+
+        /* Normal UP */
+
+        if (
+            currentLevel <
+            ACUITY_LEVELS.length - 1
+        ) {
 
             currentLevel++;
 
-            localStorage.setItem("level_" + currentTest, currentLevel);
+            localStorage.setItem(
+                "level_" + currentTest,
+                currentLevel
+            );
 
             renderFeature();
+
             return;
         }
     },
 
+
+    /* =================================================
+       PREVIOUS
+    ================================================= */
+
     prev() {
 
-        // 6/60 → same size, previous letter
+        /* 6/60 → previous letter */
+
         if (currentLevel === 0) {
 
             alphabetRowIndex++;
 
-            if (alphabetRowIndex >= alphabetLettersAt6_4.length) {
+            if (
+                alphabetRowIndex >=
+                alphabetLettersAt6_4.length
+            ) {
                 alphabetRowIndex = 0;
             }
 
             renderFeature();
+
             return;
         }
 
-        // Bigger size → smaller size
+
+        /* Bigger → smaller */
+
         if (currentLevel > 0) {
 
             currentLevel--;
 
-            localStorage.setItem("level_" + currentTest, currentLevel);
+            localStorage.setItem(
+                "level_" + currentTest,
+                currentLevel
+            );
 
             renderFeature();
+
             return;
         }
     }

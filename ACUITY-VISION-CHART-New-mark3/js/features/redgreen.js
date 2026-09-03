@@ -120,20 +120,41 @@ FEATURES["redgreen"] = {
                 greenIcons += createRedGreenC(cSize, this.directions[i], "#00a000");
             }
             else if (currentMode === "tumbling") {
-                const eIcon = `<span style="${textStyle} transform:rotate(${this.directions[i]}deg);">E</span>`;
-                redIcons += eIcon;
-                greenIcons += eIcon;
-            }
-            else if (currentMode === "alphabets") {
-                const letterIcon = `<span style="${textStyle}">${this.letters[i]}</span>`;
-                redIcons += letterIcon;
-                greenIcons += letterIcon;
-            }
-            else if (currentMode === "numerics") {
-                const numberIcon = `<span style="${textStyle}">${this.numbers[i]}</span>`;
-                redIcons += numberIcon;
-                greenIcons += numberIcon;
-            }
+
+    const eIcon =
+        createTumblingESvg(
+            cSize,
+            this.directions[i]
+        );
+
+    redIcons += eIcon;
+    greenIcons += eIcon;
+}
+
+else if (currentMode === "alphabets") {
+
+    const letterIcon =
+        createAlphabetSvg(
+            this.letters[i],
+            cSize
+        );
+
+    redIcons += letterIcon;
+    greenIcons += letterIcon;
+}
+
+else if (currentMode === "numerics") {
+
+    const numberIcon =
+        createNumericSvg(
+            this.numbers[i],
+            cSize
+        );
+
+    redIcons += numberIcon;
+    greenIcons += numberIcon;
+}
+            
             else if (isLanguageMode) {
                 const direction = rtlLanguages.includes(currentMode)
                     ? " direction:rtl;"
@@ -179,6 +200,16 @@ FEATURES["redgreen"] = {
             renderFeature();
         }
     },
+    previousMode() {
+    const modes = this.getModes();
+
+    this.modeIndex =
+        (this.modeIndex - 1 + modes.length) % modes.length;
+
+    if (typeof renderFeature === "function") {
+        renderFeature();
+    }
+},
 
     randomize() {
         const count = currentLevel + 1;

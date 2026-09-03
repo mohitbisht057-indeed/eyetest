@@ -956,21 +956,23 @@ let menuSelectedIndex = 0;
 function getVisibleMenuCards() {
 
     return Array.from(
-        document.querySelectorAll(
-            ".home-layout:not([aria-hidden='true']) .vision-card, " +
-            ".home-layout:not([aria-hidden='true']) .menu-btn"
-        )
-    ).filter(card => {
+        document.querySelectorAll("#menu button[onclick]")
+    ).filter(button => {
 
-        const style = window.getComputedStyle(card);
+        const style =
+            window.getComputedStyle(button);
+
+        const rect =
+            button.getBoundingClientRect();
 
         return (
             style.display !== "none" &&
-            style.visibility !== "hidden"
+            style.visibility !== "hidden" &&
+            rect.width > 0 &&
+            rect.height > 0
         );
     });
 }
-
 
 /* Highlight selected card */
 function updateMenuSelection() {
@@ -997,157 +999,233 @@ function updateMenuSelection() {
 }
 
 
-/* Move selection */
 function moveMenuSelection(direction) {
 
     const cards = getVisibleMenuCards();
 
     if (!cards.length) return;
 
-    const current = cards[menuSelectedIndex];
-
-    if (!current) {
+    if (
+        menuSelectedIndex < 0 ||
+        menuSelectedIndex >= cards.length
+    ) {
         menuSelectedIndex = 0;
-        updateMenuSelection();
-        return;
     }
 
+    const current = cards[menuSelectedIndex];
+
+    if (!current) return;
 
     const currentRect =
         current.getBoundingClientRect();
 
+    const currentCenterX =
+        currentRect.left + currentRect.width / 2;
 
-    /*
-     * RIGHT / LEFT
-     */
+    const currentCenterY =
+        currentRect.top + currentRect.height / 2;
+
+
+    /* =========================================
+       LEFT / RIGHT
+    ========================================= */
+
     if (
         direction === "left" ||
         direction === "right"
     ) {
 
         const sameRow = cards
-            .map((card, index) => ({
-                card,
-                index,
-                rect: card.getBoundingClientRect()
-            }))
+            .map((card, index) => {
+
+                const rect =
+                    card.getBoundingClientRect();
+
+                return {
+                    card,
+                    index,
+                    rect,
+                    centerX:
+                        rect.left + rect.width / 2,
+                    centerY:
+                        rect.top + rect.height / 2
+                };
+            })
             .filter(item =>
                 Math.abs(
-                    item.rect.top -
-                    currentRect.top
-                ) < 20
+                    item.centerY -
+                    currentCenterY
+                ) < currentRect.height * 0.4
             )
             .sort((a, b) =>
-                a.rect.left - b.rect.left
+                a.centerX - b.centerX
             );
 
 
         const position =
             sameRow.findIndex(
-                item => item.index === menuSelectedIndex
+                item =>
+                    item.index ===
+                    menuSelectedIndex
             );
 
 
-        if (direction === "right") {
+        if (position !== -1) {
 
-            if (
-                position >= 0 &&
-                position < sameRow.length - 1
-            ) {
-                menuSelectedIndex =
-                    sameRow[position + 1].index;
+            if (direction === "right") {
+
+                if (
+                    position <
+                    sameRow.length - 1
+                ) {
+                    menuSelectedIndex =
+                        sameRow[position + 1].index;
+                } else {
+
+                    /*
+                     * Right edge → wrap to
+                     * first card of same row
+                     */
+                    menuSelectedIndex =
+                        sameRow[0].index;
+                }
+
             } else {
-                menuSelectedIndex =
-                    sameRow[0].index;
+
+                if (position > 0) {
+
+                    menuSelectedIndex =
+                        sameRow[position - 1].index;
+
+                } else {
+
+                    /*
+                     * Left edge → wrap to
+                     * last card of same row
+                     */
+                    menuSelectedIndex =
+                        sameRow[
+                            sameRow.length - 1
+                        ].index;
+                }
             }
 
-        } else {
-
-            if (position > 0) {
-                menuSelectedIndex =
-                    sameRow[position - 1].index;
-            } else {
-                menuSelectedIndex =
-                    sameRow[sameRow.length - 1].index;
-            }
+            updateMenuSelection();
+            return;
         }
     }
 
 
-    /*
-     * UP / DOWN
-     */
+    /* =========================================
+       UP / DOWN
+    ========================================= */
+
     if (
         direction === "up" ||
         direction === "down"
     ) {
 
         const candidates = cards
-            .map((card, index) => ({
-                card,
-                index,
-                rect: card.getBoundingClientRect()
-            }))
+            .map((card, index) => {
+
+                const rect =
+                    card.getBoundingClientRect();
+
+                return {
+                    card,
+                    index,
+                    rect,
+                    centerX:
+                        rect.left + rect.width / 2,
+                    centerY:
+                        rect.top + rect.height / 2
+                };
+            })
             .filter(item => {
 
-                const verticalDistance =
-                    item.rect.top -
-                    currentRect.top;
-
-                if (direction === "up") {
-                    return verticalDistance < -20;
+                if (
+                    direction === "up"
+                ) {
+                    return (
+                        item.centerY <
+                        currentCenterY - 10
+                    );
                 }
 
-                return verticalDistance > 20;
+                return (
+                    item.centerY >
+                    currentCenterY + 10
+                );
             });
 
 
         if (candidates.length) {
 
             /*
-             * Choose the card
-             * closest to the current X position.
+             * Select the card whose X position
+             * is closest to the current card.
              */
             candidates.sort((a, b) => {
 
                 const aX =
                     Math.abs(
-                        a.rect.left -
-                        currentRect.left
+                        a.centerX -
+                        currentCenterX
                     );
 
                 const bX =
                     Math.abs(
-                        b.rect.left -
-                        currentRect.left
+                        b.centerX -
+                        currentCenterX
                     );
 
                 const aY =
                     Math.abs(
-                        a.rect.top -
-                        currentRect.top
+                        a.centerY -
+                        currentCenterY
                     );
 
                 const bY =
                     Math.abs(
-                        b.rect.top -
-                        currentRect.top
+                        b.centerY -
+                        currentCenterY
                     );
 
                 return (
-                    aY - bY ||
-                    aX - bX
+                    aX - bX ||
+                    aY - bY
                 );
             });
 
 
             menuSelectedIndex =
                 candidates[0].index;
+
+            updateMenuSelection();
+            return;
         }
+
+
+        /*
+         * No card in that direction:
+         * wrap to opposite side.
+         */
+
+        if (direction === "down") {
+
+            menuSelectedIndex =
+                0;
+
+        } else {
+
+            menuSelectedIndex =
+                cards.length - 1;
+        }
+
+
+        updateMenuSelection();
+        return;
     }
-
-
-    updateMenuSelection();
 }
 
 
@@ -1207,62 +1285,26 @@ document.addEventListener(
             /*
             * UP
             */
-          if (event.key === "ArrowUp") {
+/* UP */
+if (event.key === "ArrowUp") {
 
-              event.preventDefault();
+    event.preventDefault();
 
-              if (currentTest === "snellen") {
+    moveMenuSelection("up");
 
-                  previousLevel();
+    return;
+}
 
-              } else if (currentTest === "logmar") {
 
-                  FEATURES["logmar"].scroll(-250);
+/* DOWN */
+if (event.key === "ArrowDown") {
 
-              } else if (currentTest === "dots") {
+    event.preventDefault();
 
-                  if (FEATURES["dots"] && typeof FEATURES["dots"].shuffle === "function") {
-                      FEATURES["dots"].shuffle();
-                  }
-                  renderFeature();
+    moveMenuSelection("down");
 
-              } else {
-
-                  nextLevel();
-              }
-
-              return;
-          }
-
-          /*
-            * DOWN
-            */
-          if (event.key === "ArrowDown") {
-
-              event.preventDefault();
-
-              if (currentTest === "snellen") {
-
-                  nextLevel();
-
-              } else if (currentTest === "logmar") {
-
-                  FEATURES["logmar"].scroll(250);
-
-              } else if (currentTest === "dots") {
-
-                  if (FEATURES["dots"] && typeof FEATURES["dots"].shuffle === "function") {
-                      FEATURES["dots"].shuffle();
-                  }
-                  renderFeature();
-
-              } else {
-
-                  previousLevel();
-              }
-
-              return;
-          }
+    return;
+}
 
 
             /*
@@ -1303,6 +1345,64 @@ document.addEventListener(
             testScreen &&
             getComputedStyle(testScreen).display !== "none"
         ) {
+
+        /* ================= PEDIATRIC REMOTE NAVIGATION ================= */
+
+if (currentTest === "pediatric") {
+
+    if (pediatricMode === "cards") {
+
+        if (event.key === "ArrowLeft") {
+            event.preventDefault();
+            movePediatricSelection("left");
+            return;
+        }
+
+        if (event.key === "ArrowRight") {
+            event.preventDefault();
+            movePediatricSelection("right");
+            return;
+        }
+
+        if (event.key === "ArrowUp") {
+            event.preventDefault();
+            movePediatricSelection("up");
+            return;
+        }
+
+        if (event.key === "ArrowDown") {
+            event.preventDefault();
+            movePediatricSelection("down");
+            return;
+        }
+
+        if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            activatePediatricSelection();
+            return;
+        }
+    }
+
+    if (
+        pediatricMode === "preschool" ||
+        pediatricMode === "images"
+    ) {
+
+        if (event.key === "ArrowLeft") {
+            event.preventDefault();
+            previousPediatricImage();
+            return;
+        }
+
+        if (event.key === "ArrowRight") {
+            event.preventDefault();
+            nextPediatricImage();
+            return;
+        }
+
+        return;
+    }
+}
 
 /* ================= EDUCATIONAL REMOTE NAVIGATION ================= */
 
@@ -1367,57 +1467,48 @@ if (currentTest === "educational") {
             /*
              * UP
              */
-            if (event.key === "ArrowUp") {
+           if (event.key === "ArrowUp") {
 
-                event.preventDefault();
+    event.preventDefault();
 
-                if (
-                    currentTest === "snellen"
-                ) {
+    if (currentTest === "snellen") {
 
-                    previousLevel();
+        nextLevel();
 
-                } else if (
-                    currentTest === "logmar"
-                ) {
+    } else if (currentTest === "logmar") {
 
-                    FEATURES["logmar"].scroll(-250);
+        FEATURES["logmar"].scroll(250);
 
-                } else {
+    } else {
 
-                    nextLevel();
-                }
+        previousLevel();
+    }
 
-                return;
-            }
-
+    return;
+}
 
             /*
              * DOWN
              */
             if (event.key === "ArrowDown") {
 
-                event.preventDefault();
+    event.preventDefault();
 
-                if (
-                    currentTest === "snellen"
-                ) {
+    if (currentTest === "snellen") {
 
-                    nextLevel();
+        previousLevel();
 
-                } else if (
-                    currentTest === "logmar"
-                ) {
+    } else if (currentTest === "logmar") {
 
-                    FEATURES["logmar"].scroll(250);
+        FEATURES["logmar"].scroll(-250);
 
-                } else {
+    } else {
 
-                    previousLevel();
-                }
+        nextLevel();
+    }
 
-                return;
-            }
+    return;
+}
 
 
             /*
@@ -1428,8 +1519,11 @@ if (event.key === "ArrowLeft") {
     event.preventDefault();
 
     if (currentTest === "logmar") {
+
         FEATURES["logmar"].prev();
+
     } else if (currentTest === "snellen") {
+
         snellenPage--;
 
         if (snellenPage < 0) {
@@ -1438,7 +1532,17 @@ if (event.key === "ArrowLeft") {
 
         snellenOffset = 0;
         renderFeature();
+
+    } else if (
+        currentTest === "redgreen" &&
+        FEATURES["redgreen"] &&
+        typeof FEATURES["redgreen"].previousMode === "function"
+    ) {
+
+        FEATURES["redgreen"].previousMode();
+
     } else {
+
         previousFeature();
     }
 
